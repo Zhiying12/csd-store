@@ -12,6 +12,7 @@
 #include <iostream>
 #include <errno.h>
 #include <thread>
+#include <vector>
 // XRT includes
 #include "experimental/xrt_bo.h"
 #include "experimental/xrt_device.h"
@@ -23,13 +24,13 @@ int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
 int MAX_BUFFER_SIZE = VALUE_NUMS * 4;
 
 struct Entry {
-    int32_t index;
+    int index;
     int op;
     int key;
     int value;
 };
 
-void kv_store_apply(xrt::bo& kernel_bo, xrt::bo& result_bo, xrt::kernel& krnl, Entry& entry, int* result) {
+void kv_store_apply(xrt::bo& kernel_bo, xrt::bo& result_bo, xrt::kernel& krnl, Entry& entry) {
 	auto run = krnl(kernel_bo, result_bo, entry, BUFFER_SIZE);
 	if (run) {
 	  run.wait();
@@ -63,27 +64,29 @@ int main(int argc, char** argv) {
     // for (int i = 0; i < VALUE_NUMS; i++) {
     // 	kernel_bo_map[i] = 0;
     // }
-    result_bo_map[0] = 1;
 
-    // testing
-    int result = 0;
-    std::atomic<int32_t> index = 0;
-    const int thread_nums = 20;
-    std::thread threads[thread_nums];
+    // validation
+    std::atomic<int32_t> index{0};
+    int thread_nums = 20;
+    std::vector<std::thread> threads(thread_nums);
 
     for (int i = 0; i < thread_nums; i++) {
-        threads[i] = std::thread([i, &index, &kernel_bo, &krnl] {
-            auto result_bo = xrt::bo(device, 4, krnl.group_id(i + 1));
+        threads[i] = std::thread([i, &index, &kernel_bo, &krnl, &device] {
+            auto result_bo = xrt::bo(device, 4, krnl.group_id(0));
             int* result_bo_map = result_bo.map<int *>();
-            int op = 0
+            int op = 0;
             if (i % 2 == 1) {
-              op = 1
+              op = 1;
             }
             int next_index = ++index;
             Entry entry = {next_index, op, i / 2, i / 2 * 100};
-            kv_store_apply(kernel_bo, result_bo, krnl, entry, &result);
+            kv_store_apply(kernel_bo, result_bo, krnl, entry);
             std::cout << "Value for thread " << i << " op " << op << ": " << result_bo_map[0] << std::endl;
         });
+    }
+
+    for (int i = 0; i < thread_nums; i++) {
+    	threads[i].join();
     }
 
     // Entry entry1 = {index, 0, 1, 100};
