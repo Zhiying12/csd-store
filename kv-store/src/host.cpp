@@ -55,8 +55,8 @@ int main(int argc, char** argv) {
     auto krnl = xrt::kernel(device, uuid, "kv_store_top");
 
     auto kernel_bo = xrt::bo(device, BUFFER_SIZE * sizeof(Entry), krnl.group_id(0));
-    auto result_bo = xrt::bo(device, 4, krnl.group_id());
-    int* kernel_bo_map = kernel_bo.map<Entry *>();
+    auto result_bo = xrt::bo(device, 4, krnl.group_id(1));
+//    int* kernel_bo_map = kernel_bo.map<Entry *>();
     int* result_bo_map = result_bo.map<int *>();
 
     // init
@@ -68,20 +68,20 @@ int main(int argc, char** argv) {
     // testing
     int result = 0;
     int index = 1;
-    Entry entry1 = Entry(index, 0, 1, 100);
+    Entry entry1 = {index, 0, 1, 100};
     index++;
-    Entry entry2 = Entry(index, 0, 2, 200);
+    Entry entry2 = {index, 0, 2, 200};
     index++;
     kv_store_apply(kernel_bo, result_bo, krnl, entry1, &result);  // Insert (1, 100)
     kv_store_apply(kernel_bo, result_bo, krnl, entry2, &result);  // Insert (2, 200)
 
     // Get values
-    Entry entry3 = Entry(index, 1, 1, 0);
+    Entry entry3 = {index, 1, 1, 0};
     index++;
     kv_store_apply(kernel_bo, result_bo, krnl, entry3, &result);  // Get value for key 1
     std::cout << "Value for key 1: " << result_bo_map[0] << std::endl;
 
-    Entry entry4 = Entry(index, 1, 2, 0);
+    Entry entry4 = {index, 1, 2, 0};
     index++;
     kv_store_apply(kernel_bo, result_bo, krnl, entry4, &result);  // Get value for key 2
     std::cout << "Value for key 2: " << result_bo_map[0] << std::endl;
