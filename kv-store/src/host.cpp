@@ -1,5 +1,6 @@
 //#include "cmdlineparser.h"
 //#include "xcl2.hpp"
+#include <atomic>
 #include <fcntl.h>
 #include <fstream>
 #include <iomanip>
@@ -10,6 +11,7 @@
 #include <chrono>
 #include <iostream>
 #include <errno.h>
+#include <thread>
 // XRT includes
 #include "experimental/xrt_bo.h"
 #include "experimental/xrt_device.h"
@@ -21,7 +23,7 @@ int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
 int MAX_BUFFER_SIZE = VALUE_NUMS * 4;
 
 struct Entry {
-    int index;
+    int32_t index;
     int op;
     int key;
     int value;
@@ -55,9 +57,7 @@ int main(int argc, char** argv) {
     auto krnl = xrt::kernel(device, uuid, "kv_store_top");
 
     auto kernel_bo = xrt::bo(device, BUFFER_SIZE * sizeof(Entry), krnl.group_id(0));
-    auto result_bo = xrt::bo(device, 4, krnl.group_id(1));
 //    int* kernel_bo_map = kernel_bo.map<Entry *>();
-    int* result_bo_map = result_bo.map<int *>();
 
     // init
     // for (int i = 0; i < VALUE_NUMS; i++) {
@@ -67,24 +67,42 @@ int main(int argc, char** argv) {
 
     // testing
     int result = 0;
-    int index = 1;
-    Entry entry1 = {index, 0, 1, 100};
-    index++;
-    Entry entry2 = {index, 0, 2, 200};
-    index++;
-    kv_store_apply(kernel_bo, result_bo, krnl, entry1, &result);  // Insert (1, 100)
-    kv_store_apply(kernel_bo, result_bo, krnl, entry2, &result);  // Insert (2, 200)
+    std::atomic<int32_t> index = 0;
+    const int thread_nums = 20;
+    std::thread threads[thread_nums];
 
-    // Get values
-    Entry entry3 = {index, 1, 1, 0};
-    index++;
-    kv_store_apply(kernel_bo, result_bo, krnl, entry3, &result);  // Get value for key 1
-    std::cout << "Value for key 1: " << result_bo_map[0] << std::endl;
+    for (int i = 0; i < thread_nums; i++) {
+        threads[i] = std::thread([i, &index, &kernel_bo, &krnl] {
+            auto result_bo = xrt::bo(device, 4, krnl.group_id(i + 1));
+            int* result_bo_map = result_bo.map<int *>();
+            int op = 0
+            if (i % 2 == 1) {
+              op = 1
+            }
+            int next_index = ++index;
+            Entry entry = {next_index, op, i / 2, i / 2 * 100};
+            kv_store_apply(kernel_bo, result_bo, krnl, entry, &result);
+            std::cout << "Value for thread " << i << " op " << op << ": " << result_bo_map[0] << std::endl;
+        });
+    }
 
-    Entry entry4 = {index, 1, 2, 0};
-    index++;
-    kv_store_apply(kernel_bo, result_bo, krnl, entry4, &result);  // Get value for key 2
-    std::cout << "Value for key 2: " << result_bo_map[0] << std::endl;
+    // Entry entry1 = {index, 0, 1, 100};
+    // index++;
+    // Entry entry2 = {index, 0, 2, 200};
+    // index++;
+    // kv_store_apply(kernel_bo, result_bo, krnl, entry1, &result);  // Insert (1, 100)
+    // kv_store_apply(kernel_bo, result_bo, krnl, entry2, &result);  // Insert (2, 200)
+
+    // // Get values
+    // Entry entry3 = {index, 1, 1, 0};
+    // index++;
+    // kv_store_apply(kernel_bo, result_bo, krnl, entry3, &result);  // Get value for key 1
+    // std::cout << "Value for key 1: " << result_bo_map[0] << std::endl;
+
+    // Entry entry4 = {index, 1, 2, 0};
+    // index++;
+    // kv_store_apply(kernel_bo, result_bo, krnl, entry4, &result);  // Get value for key 2
+    // std::cout << "Value for key 2: " << result_bo_map[0] << std::endl;
 
     //     // Delete a key-value pair
     // kv_store_apply(kernel_bo, result_bo, krnl, 2, 1, 0, &result);  // Delete key 1
