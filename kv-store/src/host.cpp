@@ -30,13 +30,18 @@ struct Entry {
     int value;
 };
 
-void kv_store_apply(xrt::bo& kernel_bo, xrt::bo& result_bo, xrt::kernel& krnl, Entry& entry) {
-	auto run = krnl(kernel_bo, result_bo, entry, BUFFER_SIZE);
-	if (run) {
-	  run.wait();
-	  result_bo.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-	} else
-	  std::cout << "false run\n";
+void insert_log_entry(xrt::bo& log_bo, xrt::kernel& krnl, Entry& entry) {
+    auto run = krnl(log_bo, entry, BUFFER_SIZE);
+    if (run) {
+      run.wait();
+    } else
+      std::cout << "false run\n";
+}
+
+void kv_store_apply(xrt::bo& store_bo, xrt::bo& log_bo, xrt::bo& result_bo, xrt::kernel& krnl, int index) {
+    auto run = krnl(store_bo, log_bo, result_bo, index, MAX_BUFFER_SIZE);
+    run.wait();
+    result_bo.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
 }
 
 int main(int argc, char** argv) {
@@ -55,10 +60,11 @@ int main(int argc, char** argv) {
 
     auto device = xrt::device(dev_id);
     auto uuid = device.load_xclbin(binaryFile);
-    auto krnl = xrt::kernel(device, uuid, "kv_store_top");
+    auto krnl = xrt::kernel(device, uuid, "log_top");
+    auto store_krnl = xrt::kernel(device, uuid, "kv_store_top");
 
-    auto kernel_bo = xrt::bo(device, BUFFER_SIZE * sizeof(Entry), krnl.group_id(0));
-//    int* kernel_bo_map = kernel_bo.map<Entry *>();
+    auto log_bo = xrt::bo(device, BUFFER_SIZE * sizeof(Entry), krnl.group_id(0));
+    auto store_bo = xrt::bo(device, MAX_BUFFER_SIZE, krnl.group_id(0));
 
     // init
     // for (int i = 0; i < VALUE_NUMS; i++) {
@@ -71,16 +77,15 @@ int main(int argc, char** argv) {
     std::vector<std::thread> threads(thread_nums);
 
     for (int i = 0; i < thread_nums; i++) {
-        threads[i] = std::thread([i, &index, &kernel_bo, &krnl, &device] {
-            auto result_bo = xrt::bo(device, 4, krnl.group_id(0));
-            int* result_bo_map = result_bo.map<int *>();
+        threads[i] = std::thread([i, &index, &log_bo, &store_bo, &krnl, &store_krnl, &device] {
             int op = 0;
-            if (i % 2 == 1) {
-              op = 1;
-            }
             int next_index = ++index;
             Entry entry = {next_index, op, i / 2, i / 2 * 100};
-            kv_store_apply(kernel_bo, result_bo, krnl, entry);
+            insert_log_entry(log_bo, result_bo, krnl, entry);
+            
+            auto result_bo = xrt::bo(device, 4, krnl.group_id(0));
+            int* result_bo_map = result_bo.map<int *>();
+            kv_store_apply(store_bo, log_bo, result_bo, store_krnl, next_index);
             std::cout << "Value for thread " << i << " op " << op << ": " << result_bo_map[0] << std::endl;
         });
     }
@@ -88,31 +93,6 @@ int main(int argc, char** argv) {
     for (int i = 0; i < thread_nums; i++) {
     	threads[i].join();
     }
-
-    // Entry entry1 = {index, 0, 1, 100};
-    // index++;
-    // Entry entry2 = {index, 0, 2, 200};
-    // index++;
-    // kv_store_apply(kernel_bo, result_bo, krnl, entry1, &result);  // Insert (1, 100)
-    // kv_store_apply(kernel_bo, result_bo, krnl, entry2, &result);  // Insert (2, 200)
-
-    // // Get values
-    // Entry entry3 = {index, 1, 1, 0};
-    // index++;
-    // kv_store_apply(kernel_bo, result_bo, krnl, entry3, &result);  // Get value for key 1
-    // std::cout << "Value for key 1: " << result_bo_map[0] << std::endl;
-
-    // Entry entry4 = {index, 1, 2, 0};
-    // index++;
-    // kv_store_apply(kernel_bo, result_bo, krnl, entry4, &result);  // Get value for key 2
-    // std::cout << "Value for key 2: " << result_bo_map[0] << std::endl;
-
-    //     // Delete a key-value pair
-    // kv_store_apply(kernel_bo, result_bo, krnl, 2, 1, 0, &result);  // Delete key 1
-
-    //     // Try to get the deleted key
-    // kv_store_apply(kernel_bo, result_bo, krnl, 1, 1, 0, &result);  // Get value for key 1
-    // std::cout << "Value for key 1 after deletion: " << result_bo_map[0] << std::endl;
 
     return 0;
 }
