@@ -18,7 +18,11 @@
 #include "experimental/xrt_device.h"
 #include "experimental/xrt_kernel.h"
 
-int BUFFER_SIZE = 1024;
+#include "json.h"
+#include "replicant.h"
+using nlohmann::json;
+
+int BUFFER_SIZE = 10000;
 int STRUCT_FIELDS = 3;
 int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
 int MAX_BUFFER_SIZE = VALUE_NUMS * 4;
@@ -60,7 +64,7 @@ int main(int argc, char** argv) {
 
     auto device = xrt::device(dev_id);
     auto uuid = device.load_xclbin(binaryFile);
-    auto krnl = xrt::kernel(device, uuid, "log_top");
+    auto krnl = xrt::kernel(device, uuid, "append_instance");
     auto store_krnl = xrt::kernel(device, uuid, "kv_store_top");
 
     auto log_bo = xrt::bo(device, BUFFER_SIZE * sizeof(Entry), krnl.group_id(0));
@@ -70,6 +74,14 @@ int main(int argc, char** argv) {
     // for (int i = 0; i < VALUE_NUMS; i++) {
     // 	kernel_bo_map[i] = 0;
     // }
+
+    std::ifstream f("config.json");
+    json config;
+    f >> config;
+    config["id"] = 0;
+    
+    boost::asio::io_context io_context(config["threadpool_size"]);
+    auto replicant = std::make_shared<Replicant>(&io_context, config);
 
     // validation
     std::atomic<int32_t> index{0};
@@ -81,7 +93,7 @@ int main(int argc, char** argv) {
             int op = 0;
             int next_index = ++index;
             Entry entry = {next_index, op, i / 2, i / 2 * 100};
-            insert_log_entry(log_bo, result_bo, krnl, entry);
+            insert_log_entry(log_bo, krnl, entry);
             
             auto result_bo = xrt::bo(device, 4, krnl.group_id(0));
             int* result_bo_map = result_bo.map<int *>();

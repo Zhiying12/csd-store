@@ -1,27 +1,14 @@
-//#define MAX_SIZE 1024  // Maximum size of the key-value store
-
-struct Entry {
-    int index;
-    int op;
-    int key;
-    int value;
-};
-
-//KeyValue log[MAX_SIZE];
+#include "protobuf.h"
 
 // Insert a key-value pair into the store
-void insert_log(Entry* log, Entry entry, int buffer_size) {
+void append_instance(Instance* log, Instance* instance, int buffer_size) {
 //#pragma HLS PIPELINE
-    int index = entry.index;
-    log[index] = entry;
+  int64_t index = instance->index_;
+  if (instance->ballot_ > log[index].ballot_)
+    log[index] = *instance;
 }
 
-// Top function for synthesis
-void log_top(Entry* log, Entry entry, int buffer_size) {
-    insert_log(log, entry, buffer_size);
-}
-
-void kv_insert(int key, int value, int* kv_store, int value_nums) {
+void kv_put(int key, int value, int* kv_store, int value_nums) {
 //#pragma HLS PIPELINE
     for (int i = 0; i < value_nums; i += 3) {
         if (kv_store[i + 2] == 0) {
@@ -33,18 +20,28 @@ void kv_insert(int key, int value, int* kv_store, int value_nums) {
     }
 }
 
-void kv_store_top(int* kv_store, Entry* log, int* result_bo, int index, int value_nums) {
+int kv_get(int key, int* kv_store, int value_nums) {
+//#pragma HLS PIPELINE
+    for (int i = 0; i < value_nums; i += 3) {
+        if (kv_store[i] == key) {
+            return kv_store[i + 1];
+        }
+    }
+    return -1;
+}
+
+void kv_store_top(int* kv_store, Instance* log, int* result_bo, int index, int value_nums) {
 //#pragma HLS INTERFACE s_axilite port=op
 //#pragma HLS INTERFACE s_axilite port=key
 //#pragma HLS INTERFACE s_axilite port=value
 //#pragma HLS INTERFACE s_axilite port=result
 //#pragma HLS INTERFACE s_axilite port=return
 
-    Entry entry = log[index];
-    if (entry.op == 0) {
-        kv_insert(entry.key, entry.value, kv_store, value_nums);
-        *result_bo = entry.value;
-    } else {
-        *result_bo = 2000;
+    Command cmd = log[index].command_;
+    if (cmd.type_ == 0) {
+        kv_put(cmd.key_, cmd.value_, kv_store, value_nums);
+        *result_bo = cmd.value_;
+    } else if (cmd.type_ == 1) {
+        *result_bo = kv_get(cmd.key_, kv_store, value_nums);
     }
 }
