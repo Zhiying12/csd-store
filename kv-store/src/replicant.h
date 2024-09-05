@@ -4,11 +4,11 @@
 #include <boost/asio.hpp>
 #include <memory>
 
-// #include "client_manager.h"
+#include "client_manager.h"
 #include "json_fwd.h"
 #include "log.h"
 // #include "memkvstore.h"
-// #include "multipaxos.h"
+#include "multipaxos.h"
 
 class Replicant : public std::enable_shared_from_this<Replicant> {
  public:
@@ -34,11 +34,11 @@ class Replicant : public std::enable_shared_from_this<Replicant> {
 
   int64_t id_;
   Log log_;
-//   MultiPaxos multi_paxos_;
+  MultiPaxos multi_paxos_;
   std::string ip_port_;
   boost::asio::io_context* io_context_;
   boost::asio::ip::tcp::acceptor acceptor_;
-//   ClientManager client_manager_;
+  ClientManager client_manager_;
   std::thread executor_thread_;
 };
 

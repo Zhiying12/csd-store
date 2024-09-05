@@ -14,11 +14,11 @@ using nlohmann::json;
 
 Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
     : id_(config["id"]),
-    //   multi_paxos_(&log_, config),
+      multi_paxos_(&log_, config),
       ip_port_(config["peers"][id_]),
       io_context_(io_context),
-      acceptor_(boost::asio::make_strand(*io_context_)) {}
-    //   client_manager_(id_, config["peers"].size(), &multi_paxos_) {}
+      acceptor_(boost::asio::make_strand(*io_context_)),
+      client_manager_(id_, config["peers"].size(), &multi_paxos_) {}
 
 void Replicant::Start() {
 //   multi_paxos_.Start();
@@ -86,7 +86,7 @@ void Replicant::AcceptClient() {
                            if (!acceptor_.is_open())
                              return;
                            if (!ec) {
-                            //  client_manager_.Start(std::move(socket));
+                             client_manager_.Start(std::move(socket));
                              AcceptClient();
                            }
                          });

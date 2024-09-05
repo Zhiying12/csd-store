@@ -15,10 +15,10 @@
 
 #include "protobuf.h"
 
-extern int BUFFER_SIZE;
-extern int STRUCT_FIELDS;
-extern int VALUE_NUMS;
-extern int MAX_BUFFER_SIZE;
+const int BUFFER_SIZE = 10000;
+const int STRUCT_FIELDS = 3;
+const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
+const int MAX_BUFFER_SIZE = VALUE_NUMS * 4;
 
 // bool kernel_call(xrt::kernel& krnl, xrt::bo& store_bo, int index) {
 

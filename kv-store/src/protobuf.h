@@ -5,7 +5,7 @@ class Command {
  public:
   inline Command() {}
 
-  int64_t type_;
+  int64_t type_ = -1;
   int64_t key_;
   int64_t value_;
 };

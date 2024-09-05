@@ -18,9 +18,9 @@
 #include "experimental/xrt_device.h"
 #include "experimental/xrt_kernel.h"
 
-#include "json.h"
-#include "replicant.h"
-using nlohmann::json;
+// #include "json.h"
+// #include "replicant.h"
+// using nlohmann::json;
 
 int BUFFER_SIZE = 10000;
 int STRUCT_FIELDS = 3;
@@ -75,13 +75,13 @@ int main(int argc, char** argv) {
     // 	kernel_bo_map[i] = 0;
     // }
 
-    std::ifstream f("config.json");
-    json config;
-    f >> config;
-    config["id"] = 0;
+    // std::ifstream f("config.json");
+    // json config;
+    // f >> config;
+    // config["id"] = 0;
     
-    boost::asio::io_context io_context(config["threadpool_size"]);
-    auto replicant = std::make_shared<Replicant>(&io_context, config);
+    // boost::asio::io_context io_context(config["threadpool_size"]);
+    // auto replicant = std::make_shared<Replicant>(&io_context, config);
 
     // validation
     std::atomic<int32_t> index{0};
