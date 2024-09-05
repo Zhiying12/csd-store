@@ -250,9 +250,9 @@ Result MultiPaxos::RunAcceptPhase(int64_t ballot,
   if (ballot == ballot_) {
     ++state->num_rpcs_;
     ++state->num_oks_;
-    Instance local_instance;
-    // TODO
-    logs_[partition_index]->Append(instance);
+    Instance local_instance(ballot, index, client_id
+                            command.type(), command.key(), command.value());
+    logs_[partition_index]->Append(local_instance);
   } else {
     auto leader = ExtractLeaderId(ballot_);
     return Result{ResultType::kSomeoneElseLeader, leader};
@@ -385,7 +385,12 @@ Status MultiPaxos::Accept(ServerContext*,
                           AcceptResponse* response) {
   //DLOG(INFO) << id_ << " <--accept--- " << request->sender();
   if (request->instance().ballot() >= ballot_) {
-    Instance instance;
+    Instance instance(request->instance().ballot(), 
+                      request->instance().index(), 
+                      request->instance().client_id(),
+                      request->instance().command().type(), 
+                      request->instance().command().key(), 
+                      request->instance().command().value());
     logs_[request->partition_index()]->Append(instance);
     response->set_type(OK);
     if (request->instance().ballot() > ballot_)
