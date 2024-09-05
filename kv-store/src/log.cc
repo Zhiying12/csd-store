@@ -33,19 +33,17 @@
 //   return false;
 // }
 
-Log::Log()
-    : bitmap_(BUFFER_SIZE, 0) {
+Log::Log(int id, xrt::device& device, xrt::uuid& uuid)
+    : id_(id),
+      bitmap_(BUFFER_SIZE, 0) {
   //TODO: init xrt::bo and open file
-  auto binaryFile = "kv-store.xclbin";
-  std::string dev_id = "1";
-
-  device_ = xrt::device(dev_id);
-  auto uuid = device_.load_xclbin(binaryFile);
-  append_krnl_ = xrt::kernel(device_, uuid, "append_instance");
-  execute_krnl_ = xrt::kernel(device_, uuid, "kv_store_top");
+  append_krnl_ = xrt::kernel(device, uuid, "append_instance");
+  execute_krnl_ = xrt::kernel(device, uuid, "kv_store_top");
 
   log_bo_ = xrt::bo(device_, BUFFER_SIZE * sizeof(Instance), append_krnl_.group_id(0));
   store_bo_ = xrt::bo(device_, MAX_BUFFER_SIZE, execute_krnl_.group_id(0));
+  result_bo_ = xrt::bo(device_, 8, execute_krnl_.group_id(2));
+  result_bo_map_ = result_bo.map<Command *>();
 }
 
 void Log::Append(Instance instance) {
@@ -89,9 +87,7 @@ std::tuple<int64_t, int64_t> Log::Execute() {
   if (!running_)
     return {-1, kv_result};
 
-  auto result_bo = xrt::bo(device_, 4, execute_krnl_.group_id(0));
-  int* result_bo_map = result_bo.map<int *>();
-  auto run = execute_krnl_(&store_bo_, &log_bo_, &result_bo_map, 
+  auto run = execute_krnl_(&store_bo_, &log_bo_, &result_bo_map_, 
                            last_executed_ + 1, MAX_BUFFER_SIZE);
    if (run) {
       run.wait();

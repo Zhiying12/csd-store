@@ -20,8 +20,12 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
       acceptor_(boost::asio::make_strand(*io_context_)),
       client_manager_(id_, config["peers"].size(), &multi_paxos_),
       partition_size_(config["partition_size"]) {
+  auto binaryFile = "kv-store.xclbin";
+  std::string dev_id = "1";
+  device_ = xrt::device(dev_id);
+  uuid_ = device_.load_xclbin(binaryFile);
   for (auto i = 0; i < partition_size_; i++) {
-    logs_.emplace_back(new Log());
+    logs_.emplace_back(new Log(i, device_, uuid_));
   }
 }
 

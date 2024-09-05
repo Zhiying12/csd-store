@@ -89,12 +89,14 @@ class Log {
   mutable std::mutex mu_;
   std::condition_variable cv_executable_;
   std::condition_variable cv_committable_;
+  int id_;
   std::vector<int64_t> bitmap_;
   int fd;
-  xrt::device device_;
   xrt::kernel append_krnl_;
   // xrt::kernel commit_krnl_;
   xrt::kernel execute_krnl_;
+  xrt::bo result_bo_
+  Command* result_bo_map_;
 };
 
 #endif
