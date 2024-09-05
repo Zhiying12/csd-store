@@ -59,7 +59,7 @@ inline bool IsSomeoneElseLeader(int64_t ballot, int64_t id) {
 
 class MultiPaxos : public multipaxos::MultiPaxosRPC::Service {
  public:
-  MultiPaxos(std::vector<Log*>& logs,, nlohmann::json const& config);
+  MultiPaxos(std::vector<Log*>& logs, nlohmann::json const& config);
   MultiPaxos(MultiPaxos const& mp) = delete;
   MultiPaxos& operator=(MultiPaxos const& mp) = delete;
   MultiPaxos(MultiPaxos&& mp) = delete;
@@ -181,7 +181,7 @@ class MultiPaxos : public multipaxos::MultiPaxosRPC::Service {
   std::thread commit_thread_;
 
   size_t partition_size_;
-  std::hash<std::string> hash_function;
+  // std::hash<int64_t> hash_function;
 };
 
 struct prepare_state_t {

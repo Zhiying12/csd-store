@@ -26,7 +26,7 @@ const int MAX_BUFFER_SIZE = VALUE_NUMS * 4;
 
 class Log {
  public:
-  explicit Log();
+  explicit Log(int id, xrt::device& device, xrt::uuid& uuid);
   Log(Log const& log) = delete;
   Log& operator=(Log const& log) = delete;
   Log(Log&& log) = delete;
@@ -95,7 +95,7 @@ class Log {
   xrt::kernel append_krnl_;
   // xrt::kernel commit_krnl_;
   xrt::kernel execute_krnl_;
-  xrt::bo result_bo_
+  xrt::bo result_bo_;
   Command* result_bo_map_;
 };
 

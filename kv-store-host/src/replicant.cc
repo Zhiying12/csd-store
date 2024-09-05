@@ -23,9 +23,9 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
   auto binaryFile = "kv-store.xclbin";
   std::string dev_id = "1";
   device_ = xrt::device(dev_id);
-  uuid_ = device_.load_xclbin(binaryFile);
+  auto uuid = device_.load_xclbin(binaryFile);
   for (auto i = 0; i < partition_size_; i++) {
-    logs_.emplace_back(new Log(i, device_, uuid_));
+    logs_.emplace_back(new Log(i, device_, uuid));
   }
 }
 

@@ -17,10 +17,10 @@ class Instance {
   Instance() {}
   Instance(int64_t ballot, int64_t index, int64_t client_id, 
            int64_t type, int64_t key, int64_t value)
-      : ballot_(ballot), 
+      : command_(type, key, value),
+        ballot_(ballot), 
         index_(index), 
-        client_id_(client_id), 
-        command_(type, key, value) {}
+        client_id_(client_id) {}
 
  public:
   Command command_;

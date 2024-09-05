@@ -40,10 +40,10 @@ Log::Log(int id, xrt::device& device, xrt::uuid& uuid)
   append_krnl_ = xrt::kernel(device, uuid, "append_instance");
   execute_krnl_ = xrt::kernel(device, uuid, "kv_store_top");
 
-  log_bo_ = xrt::bo(device_, BUFFER_SIZE * sizeof(Instance), append_krnl_.group_id(0));
-  store_bo_ = xrt::bo(device_, MAX_BUFFER_SIZE, execute_krnl_.group_id(0));
-  result_bo_ = xrt::bo(device_, 8, execute_krnl_.group_id(2));
-  result_bo_map_ = result_bo.map<Command *>();
+  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), append_krnl_.group_id(0));
+  store_bo_ = xrt::bo(device, MAX_BUFFER_SIZE, execute_krnl_.group_id(0));
+  result_bo_ = xrt::bo(device, 8, execute_krnl_.group_id(2));
+  result_bo_map_ = result_bo_.map<Command *>();
 }
 
 void Log::Append(Instance instance) {
@@ -91,7 +91,7 @@ std::tuple<int64_t, int64_t> Log::Execute() {
                            last_executed_ + 1, MAX_BUFFER_SIZE);
    if (run) {
       run.wait();
-      result_bo.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+      result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
    } else
      std::cout << "false run in execute\n";
   
