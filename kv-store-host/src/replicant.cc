@@ -25,7 +25,7 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
   device_ = xrt::device(dev_id);
   auto uuid = device_.load_xclbin(binaryFile);
   for (auto i = 0; i < partition_size_; i++) {
-    logs_.emplace_back(new Log(i, device_, uuid));
+    logs_.emplace_back(new Log(i, device_, uuid, config["store"]));
   }
 }
 

@@ -3,9 +3,11 @@
 
 #include <condition_variable>
 #include <cstdint>
+#include <fcntl.h>
 #include <mutex>
 #include <optional>
 #include <tuple>
+#include <unistd.h>
 #include <unordered_map>
 #include <vector>
 // XRT includes
@@ -26,7 +28,7 @@ const int MAX_BUFFER_SIZE = VALUE_NUMS * 4;
 
 class Log {
  public:
-  explicit Log(int id, xrt::device& device, xrt::uuid& uuid);
+  explicit Log(int id, xrt::device& device, xrt::uuid& uuid, std::string store);
   Log(Log const& log) = delete;
   Log& operator=(Log const& log) = delete;
   Log(Log&& log) = delete;
@@ -91,12 +93,20 @@ class Log {
   std::condition_variable cv_committable_;
   int id_;
   std::vector<int64_t> bitmap_;
-  int fd;
+  
   xrt::kernel append_krnl_;
   // xrt::kernel commit_krnl_;
   xrt::kernel execute_krnl_;
+  xrt::bo current_instance_bo_;
+  Instance* current_instance_bo_map_;
   xrt::bo result_bo_;
   Command* result_bo_map_;
+
+  bool is_persistent_ = false;
+  int log_fd_;
+  int log_offset_ = 0;
+  int store_fd_;
+  int store_offset_ = 0;
 };
 
 #endif

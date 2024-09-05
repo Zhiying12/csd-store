@@ -33,7 +33,7 @@
 //   return false;
 // }
 
-Log::Log(int id, xrt::device& device, xrt::uuid& uuid)
+Log::Log(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     : id_(id),
       bitmap_(BUFFER_SIZE, 0) {
   //TODO: init xrt::bo and open file
@@ -41,9 +41,17 @@ Log::Log(int id, xrt::device& device, xrt::uuid& uuid)
   execute_krnl_ = xrt::kernel(device, uuid, "kv_store_top");
 
   log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), append_krnl_.group_id(0));
-  store_bo_ = xrt::bo(device, MAX_BUFFER_SIZE, execute_krnl_.group_id(0));
-  result_bo_ = xrt::bo(device, 8, execute_krnl_.group_id(2));
+  store_bo_ = xrt::bo(device, MAX_BUFFER_SIZE * sizeof(int), execute_krnl_.group_id(0));
+  current_instance_bo_ = xrt::bo(device, sizeof(Instance), append_krnl_.group_id(2));
+  current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
+  result_bo_ = xrt::bo(device, sizeof(Command), execute_krnl_.group_id(2));
   result_bo_map_ = result_bo_.map<Command *>();
+
+  if (store == "file") {
+    is_persistent_ = true;
+    log_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
+    store_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
+  }
 }
 
 void Log::Append(Instance instance) {
@@ -55,9 +63,15 @@ void Log::Append(Instance instance) {
 
   if (bitmap_[i] == 0 || bitmap_[i] == 1) {
     // kernel call
-    auto run = append_krnl_(&log_bo_, &instance, BUFFER_SIZE);
+    auto run = append_krnl_(log_bo_, &instance, 
+                            current_instance_bo_, BUFFER_SIZE);
     if (run) {
       run.wait();
+      if (is_persistent_) {
+        auto size = pwrite(log_fd_, current_instance_bo_map_, 
+            sizeof(current_instance_bo_), log_offset_);
+        log_offset_ += size;
+      }
     } else
       std::cout << "false run in append\n";
     bitmap_[i] = 1;
@@ -87,11 +101,17 @@ std::tuple<int64_t, int64_t> Log::Execute() {
   if (!running_)
     return {-1, kv_result};
 
-  auto run = execute_krnl_(&store_bo_, &log_bo_, &result_bo_map_, 
+  auto run = execute_krnl_(store_bo_, log_bo_, result_bo_, 
                            last_executed_ + 1, MAX_BUFFER_SIZE);
    if (run) {
       run.wait();
       result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+      kv_result = result_bo_map_->value_;
+      if (is_persistent_) {
+        auto size = pwrite(store_fd_, result_bo_map_, 
+            sizeof(result_bo_), store_offset_);
+        store_offset_ += size;
+      }
    } else
      std::cout << "false run in execute\n";
   
