@@ -3,11 +3,6 @@
 #include "kvstore.h"
 #include "xrt_log.h"
 
-// XRT includes
-#include "experimental/xrt_bo.h"
-#include "experimental/xrt_device.h"
-#include "experimental/xrt_kernel.h"
-
 Log* CreateLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store) {
     return new XrtLog(id, device, uuid, store);
 }
