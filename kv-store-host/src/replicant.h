@@ -6,9 +6,10 @@
 
 #include "client_manager.h"
 #include "json_fwd.h"
+#include "kvstore.h"
 #include "log.h"
-// #include "memkvstore.h"
 #include "multipaxos.h"
+
 
 class Replicant : public std::enable_shared_from_this<Replicant> {
  public:

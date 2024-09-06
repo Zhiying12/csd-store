@@ -1,3 +1,6 @@
+#ifndef PROTOBUF_H
+#define PROTOBUF_H
+
 #include <cstdint>
 #include <string>
 
@@ -30,3 +33,4 @@ class Instance {
   // int state_;
 };
 // }  // namespace multipaxos
+#endif

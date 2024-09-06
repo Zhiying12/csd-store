@@ -4,5 +4,6 @@
     "peers": ["0.0.0.0:10000"],
     "store": "mem",
     "db_path": "/tmp/testdb",
-    "partition_size": 8
+    "partition_size": 8,
+    "log": "xrt"
 }

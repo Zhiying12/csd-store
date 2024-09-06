@@ -20,12 +20,18 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
       acceptor_(boost::asio::make_strand(*io_context_)),
       client_manager_(id_, config["peers"].size(), &multi_paxos_),
       partition_size_(config["partition_size"]) {
-  auto binaryFile = "kv-store.xclbin";
-  std::string dev_id = "1";
-  device_ = xrt::device(dev_id);
-  auto uuid = device_.load_xclbin(binaryFile);
-  for (auto i = 0; i < partition_size_; i++) {
-    logs_.emplace_back(new Log(i, device_, uuid, config["store"]));
+  if (config["log"] == "xrt") {
+    auto binaryFile = "kv-store.xclbin";
+    std::string dev_id = "1";
+    device_ = xrt::device(dev_id);
+    auto uuid = device_.load_xclbin(binaryFile);
+    for (auto i = 0; i < partition_size_; i++) {
+      logs_.emplace_back(CreateLog(i, device_, uuid, config["store"]));
+    }
+  } else {
+    for (auto i = 0; i < partition_size_; i++) {
+      logs_.emplace_back(CreateLog(kvstore::CreateStore(config), config["store"]));
+    }
   }
 }
 
@@ -88,9 +94,9 @@ void Replicant::ExecutorThread(int index) {
     if (id == -1)
       break;
     // auto [id, result] = std::move(*r);
-    // auto client = client_manager_.Get(id);
-    // if (client)
-    //   client->Write(result.value_);
+    auto client = client_manager_.Get(id);
+    if (client)
+      client->Write(result);
   }
 }
 

@@ -42,7 +42,7 @@ void kv_store_top(int* kv_store, Instance* log, Command* result_bo, int index, i
     Command cmd = log[index].command_;
     if (cmd.type_ == 0) {
         kv_put(cmd.key_, cmd.value_, kv_store, value_nums);
-        result_bo->key_ = cmd.key_;
+        result_bo->key_ = log[index].client_id_;
         result_bo->value_ = cmd.value_;
     } else if (cmd.type_ == 1) {
         result_bo->value_ = kv_get(cmd.key_, kv_store, value_nums);

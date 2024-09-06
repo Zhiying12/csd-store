@@ -71,13 +71,13 @@ void Client::Read() {
             if (r.type_ == ResultType::kOk)
               return;
             if (r.type_ == ResultType::kRetry) {
-              Write("retry");
+              Write(-1);
             } else {
               // CHECK(r.type_ == ResultType::kSomeoneElseLeader);
-              Write("leader is " + std::to_string(r.leader_));
+              Write(r.leader_);
             }
           } else {
-            Write("bad command");
+            Write(-1);
           }
         } else {
           manager_->Stop(id_);
@@ -85,7 +85,7 @@ void Client::Read() {
       });
 }
 
-void Client::Write(std::string const& response) {
+void Client::Write(int64_t const& response) {
   std::ostream response_stream(&response_);
   response_stream << response << '\n';
 
