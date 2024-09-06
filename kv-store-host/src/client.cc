@@ -28,7 +28,7 @@ RPC_Command Parse(boost::asio::streambuf* request) {
     c.set_type(FALSE);
     return c;
   }
-  c.set_key(std::move(key));
+  c.set_key(key);
 
   if (command == "get") {
     c.set_type(GET);
@@ -77,7 +77,7 @@ void Client::Read() {
               Write(r.leader_);
             }
           } else {
-            Write(-1);
+            Write(-2);
           }
         } else {
           manager_->Stop(id_);

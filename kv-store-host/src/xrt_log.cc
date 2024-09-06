@@ -50,7 +50,7 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
   if (store == "file") {
     is_persistent_ = true;
     log_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
-    store_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
+    store_fd_ = open("store", O_CREAT | O_RDWR | O_APPEND);
   }
 }
 
@@ -117,7 +117,8 @@ std::tuple<int64_t, int64_t> XrtLog::Execute() {
   
   ++last_executed_;
   bitmap_[last_executed_] = 3;
-  return {kv_result, kv_result};
+  std::cout << result_bo_map_->key_ << " " << kv_result << "\n";
+  return {result_bo_map_->key_, kv_result};
 }
 
 // void XrtLog::CommitUntil(int64_t leader_last_executed, int64_t ballot) {

@@ -251,14 +251,14 @@ Result MultiPaxos::RunAcceptPhase(int64_t ballot,
     ++state->num_rpcs_;
     ++state->num_oks_;
     int64_t type;
-    if (command.type() == multipaxos::PUT)
+    if (instance.command().type() == multipaxos::PUT)
       type = 0;
-    else if (command.type() == multipaxos::GET)
+    else if (instance.command().type() == multipaxos::GET)
       type = 1;
     else
       type = 2;
     Instance local_instance(ballot, index, client_id,
-                            type, command.key(), command.value());
+                            type, instance.command().key(), instance.command().value());
     logs_[partition_index]->Append(local_instance);
   } else {
     auto leader = ExtractLeaderId(ballot_);
