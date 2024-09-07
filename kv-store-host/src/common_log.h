@@ -20,7 +20,8 @@ class CommonLog : public Log {
  public:
   explicit CommonLog(std::unique_ptr<kvstore::KVStore> kv_store, 
                      std::string store)
-      : kv_store_(std::move(kv_store)) {
+      : kv_store_(std::move(kv_store)),
+        bitmap_(50000, 0) {
     if (store == "file") {
       is_persistent_ = true;
       log_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);

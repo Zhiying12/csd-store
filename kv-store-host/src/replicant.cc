@@ -21,7 +21,6 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
       client_manager_(id_, config["peers"].size(), &multi_paxos_),
       partition_size_(config["partition_size"]) {
   if (config["log"] == "xrt") {
-    std::cout << "xrt log\n";
     auto binaryFile = "kv-store.xclbin";
     std::string dev_id = "1";
     device_ = xrt::device(dev_id);
@@ -30,7 +29,6 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
       logs_.emplace_back(CreateLog(i, device_, uuid, config["store"]));
     }
   } else {
-    std::cout << "common log\n";
     for (auto i = 0; i < partition_size_; i++) {
       logs_.emplace_back(CreateLog(kvstore::CreateStore(config), config["store"]));
     }
