@@ -30,7 +30,7 @@ class Instance {
   int64_t ballot_;
   int64_t index_;
   int64_t client_id_;
-  // int state_;
+  int64_t state_ = 0;
 };
 // }  // namespace multipaxos
 #endif

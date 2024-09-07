@@ -20,8 +20,7 @@ class CommonLog : public Log {
  public:
   explicit CommonLog(std::unique_ptr<kvstore::KVStore> kv_store, 
                      std::string store)
-      : kv_store_(std::move(kv_store)),
-        bitmap_(50000, 0) {
+      : kv_store_(std::move(kv_store)) {
     if (store == "file") {
       is_persistent_ = true;
       log_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
@@ -74,7 +73,8 @@ class CommonLog : public Log {
   // std::vector<multipaxos::Instance> Instances() const;
 
   bool IsExecutable() const {
-    return bitmap_[last_executed_ + 1] == 2;
+    auto it = log_.find(last_executed_ + 1);
+    return it != log_.end() && it->second.state_ == 1;
   }
 
   // multipaxos::Instance const* at(std::size_t i) const;
@@ -90,7 +90,6 @@ class CommonLog : public Log {
   mutable std::mutex mu_;
   std::condition_variable cv_executable_;
   std::condition_variable cv_committable_;
-  std::vector<int64_t> bitmap_;
 
   bool is_persistent_ = false;
   int log_fd_;

@@ -51,11 +51,14 @@ void CommonLog::Append(Instance instance) {
 
 void CommonLog::Commit(int64_t index) {
   std::unique_lock<std::mutex> lock(mu_);
-  while (bitmap_[index] == 0) {
+  auto it = log_.find(index);
+  while (it == log_.end()) {
     cv_committable_.wait(lock);
+    it = log_.find(index);
   }
 
-  bitmap_[index] = 2;
+  if (it->second.state_ == 0)
+    it->second.state_ = 1;
 
   if (IsExecutable())
     cv_executable_.notify_one();
@@ -74,7 +77,7 @@ std::tuple<int64_t, int64_t> CommonLog::Execute() {
   kvstore::KVResult result =
       kvstore::Execute(instance->command_, kv_store_.get());
   ++last_executed_;
-  bitmap_[last_executed_] = 3;
+  it->second.state_ = 2;
   
   if (is_persistent_) {
     auto size = pwrite(store_fd_, &instance, sizeof(instance), store_offset_);
