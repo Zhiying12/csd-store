@@ -4,19 +4,19 @@
 
 namespace kvstore {
 
-int64_t MemKVStore::Get(int64_t const& key) {
+std::string MemKVStore::Get(std::string const& key) {
   auto it = map_.find(key);
   if (it != map_.end())
     return it->second;
-  return -1;
+  return "";
 }
 
-bool MemKVStore::Put(int64_t const& key, int64_t const& value) {
+bool MemKVStore::Put(std::string const& key, std::string const& value) {
   map_[key] = value;
   return true;
 }
 
-bool MemKVStore::Del(int64_t const& key) {
+bool MemKVStore::Del(std::string const& key) {
   return map_.erase(key) != 0;
 }
 

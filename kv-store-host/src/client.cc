@@ -17,8 +17,7 @@ RPC_Command Parse(boost::asio::streambuf* request) {
   std::string line;
   std::getline(std::istream(request), line);
   std::istringstream request_stream(line);
-  int key;
-  std::string command;
+  std::string command, key;
   RPC_Command c;
 
   request_stream >> command;
@@ -28,7 +27,7 @@ RPC_Command Parse(boost::asio::streambuf* request) {
     c.set_type(FALSE);
     return c;
   }
-  c.set_key(key);
+  c.set_key(std::move(key));
 
   if (command == "get") {
     c.set_type(GET);
@@ -36,7 +35,7 @@ RPC_Command Parse(boost::asio::streambuf* request) {
     c.set_type(DEL);
   } else if (command == "put") {
     c.set_type(PUT);
-    int value;
+    std::string value;
     request_stream >> value;
     if (!request_stream) {
       c.set_type(FALSE);
@@ -71,13 +70,13 @@ void Client::Read() {
             if (r.type_ == ResultType::kOk)
               return;
             if (r.type_ == ResultType::kRetry) {
-              Write(-1);
+              Write("retry");
             } else {
               // CHECK(r.type_ == ResultType::kSomeoneElseLeader);
-              Write(r.leader_);
+              Write("leader is " + std::to_string(r.leader_));
             }
           } else {
-            Write(-2);
+            Write("bad command");
           }
         } else {
           manager_->Stop(id_);
@@ -85,7 +84,7 @@ void Client::Read() {
       });
 }
 
-void Client::Write(int64_t const& response) {
+void Client::Write(std::string const& response) {
   std::ostream response_stream(&response_);
   response_stream << response << '\n';
 

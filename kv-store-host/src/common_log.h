@@ -14,22 +14,18 @@
 #include "log.h"
 #include "kvstore.h"
 
+using multipaxos::RPC_Instance;
+
 bool Insert(std::unordered_map<int64_t, Instance>* log, Instance instance);
+bool IsCommitted(multipaxos::RPC_Instance const& instance);
+bool IsExecuted(multipaxos::RPC_Instance const& instance);
+bool IsInProgress(multipaxos::RPC_Instance const& instance);
 
 class CommonLog : public Log {
  public:
   explicit CommonLog(int id, 
                      std::unique_ptr<kvstore::KVStore> kv_store, 
-                     std::string store)
-      : kv_store_(std::move(kv_store)) {
-    if (store == "file") {
-      is_persistent_ = true;
-      std::string file_name = "log";
-      file_name += std::to_string(id);
-      log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
-      store_fd_ = open("store", O_CREAT | O_RDWR | O_APPEND);
-    }
-  }
+                     std::string store);
   CommonLog(CommonLog const& log) = delete;
   CommonLog& operator=(CommonLog const& log) = delete;
   CommonLog(CommonLog&& log) = delete;
@@ -66,9 +62,9 @@ class CommonLog : public Log {
     cv_executable_.notify_one();
   }
 
-  void Append(Instance instance);
+  void Append(RPC_Instance inst);
   void Commit(int64_t index);
-  std::tuple<int64_t, int64_t> Execute();
+  std::tuple<int64_t, std::string> Execute();
 
   // void CommitUntil(int64_t leader_last_executed, int64_t ballot);
   // void TrimUntil(int64_t leader_global_last_executed);
@@ -77,16 +73,21 @@ class CommonLog : public Log {
 
   bool IsExecutable() const {
     auto it = log_.find(last_executed_ + 1);
-    return it != log_.end() && it->second.state_ == 1;
+    return it != log_.end() && IsCommitted(it->second);
   }
 
   // multipaxos::Instance const* at(std::size_t i) const;
   // std::unordered_map<int64_t, multipaxos::Instance> GetLog();
 
+  RPC_Instance ConvertInstance(RPC_Instance instance) {
+    RPC_Instance i(instance);
+    return i;
+  }
+
  private:
   bool running_ = true;
   std::unique_ptr<kvstore::KVStore> kv_store_;
-  std::unordered_map<int64_t, Instance> log_;
+  std::unordered_map<int64_t, RPC_Instance> log_;
   int64_t last_index_ = 0;
   int64_t last_executed_ = 0;
   int64_t global_last_executed_ = 0;

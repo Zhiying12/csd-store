@@ -13,12 +13,12 @@ class MemKVStore : public KVStore {
   MemKVStore(MemKVStore&& store) = delete;
   MemKVStore& operator=(MemKVStore&& store) = delete;
 
-  int64_t Get(int64_t const& key) override;
-  bool Put(int64_t const& key, int64_t const& value) override;
-  bool Del(int64_t const& key) override;
+  std::string Get(std::string const& key) override;
+  bool Put(std::string const& key, std::string const& value) override;
+  bool Del(std::string const& key) override;
 
  private:
-  std::map<int64_t, int64_t> map_;
+  std::map<std::string, std::string> map_;
 };
 
 }  // namespace kvstore

@@ -27,7 +27,7 @@ class Client : public std::enable_shared_from_this<Client> {
   void Stop();
 
   void Read();
-  void Write(int64_t const& response);
+  void Write(std::string const& response);
 
  private:
   int64_t id_;

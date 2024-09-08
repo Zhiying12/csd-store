@@ -63,9 +63,9 @@ class XrtLog : public Log {
     cv_executable_.notify_one();
   }
 
-  void Append(Instance instance) override;
+  void Append(multipaxos::RPC_Instance inst) override;
   void Commit(int64_t index) override;
-  std::tuple<int64_t, int64_t> Execute() override;
+  std::tuple<int64_t, std::string> Execute() override;
 
   // void CommitUntil(int64_t leader_last_executed, int64_t ballot);
   // void TrimUntil(int64_t leader_global_last_executed);
@@ -78,6 +78,11 @@ class XrtLog : public Log {
 
   // multipaxos::Instance const* at(std::size_t i) const;
   // std::unordered_map<int64_t, multipaxos::Instance> GetLog();
+
+  Instance ConvertInstance(multipaxos::RPC_Instance& i) {
+    return Instance(i.ballot(), i.index(), i.client_id(), i.command().type(), 
+                    i.command().key(), i.command().value());
+  }
 
  private:
   bool running_ = true;
@@ -99,6 +104,7 @@ class XrtLog : public Log {
   Instance* current_instance_bo_map_;
   xrt::bo result_bo_;
   Command* result_bo_map_;
+  Instance* log_bo_map_;
 
   bool is_persistent_ = false;
   int log_fd_;

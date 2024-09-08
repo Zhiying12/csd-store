@@ -67,7 +67,7 @@ void Replicant::StartServer() {
 void Replicant::StopServer() {
   auto self(shared_from_this());
   boost::asio::post(acceptor_.get_executor(), [this, self] { acceptor_.close(); });
-//   client_manager_.StopAll();
+  client_manager_.StopAll();
 }
 
 void Replicant::StartExecutorThread() {
@@ -89,7 +89,8 @@ void Replicant::StopExecutorThread() {
 
 void Replicant::ExecutorThread(int index) {
   for (;;) {
-    int64_t id, result;
+    int64_t id;
+    std::string result;
     std::tie(id, result) = logs_[index]->Execute();
     if (id == -1)
       break;

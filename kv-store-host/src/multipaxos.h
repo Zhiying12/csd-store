@@ -181,7 +181,7 @@ class MultiPaxos : public multipaxos::MultiPaxosRPC::Service {
   std::thread commit_thread_;
 
   size_t partition_size_;
-  // std::hash<int64_t> hash_function;
+  std::hash<std::string> hash_function;
 };
 
 struct prepare_state_t {

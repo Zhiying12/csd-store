@@ -2,18 +2,31 @@
 #include <iostream>
 #include "common_log.h"
 
-// bool IsCommitted(multipaxos::Instance const& instance) {
-//   return instance.state == 1;
-// }
-// bool IsExecuted(multipaxos::Instance const& instance) {
-//   return instance.state == 2;
-// }
-// bool IsInProgress(multipaxos::Instance const& instance) {
-//   return instance.state == 0;
-// }
+bool IsCommitted(multipaxos::RPC_Instance const& instance) {
+  return instance.state() == 1;
+}
+bool IsExecuted(multipaxos::RPC_Instance const& instance) {
+  return instance.state() == 2;
+}
+bool IsInProgress(multipaxos::RPC_Instance const& instance) {
+  return instance.state() == 0;
+}
 
-bool Insert(std::unordered_map<int64_t, Instance>* log, Instance instance) {
-  auto i = instance.index_;
+CommonLog::CommonLog(int id, 
+                     std::unique_ptr<kvstore::KVStore> kv_store, 
+                     std::string store)
+    : kv_store_(std::move(kv_store)) {
+  if (store == "file") {
+    is_persistent_ = true;
+    std::string file_name = "log";
+    file_name += std::to_string(id);
+    log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
+    store_fd_ = open("store", O_CREAT | O_RDWR | O_APPEND);
+  }
+}
+
+bool Insert(std::unordered_map<int64_t, RPC_Instance>* log, RPC_Instance instance) {
+  auto i = instance.index();
   auto it = log->find(i);
   if (it == log->end()) {
     (*log)[i] = std::move(instance);
@@ -23,7 +36,7 @@ bool Insert(std::unordered_map<int64_t, Instance>* log, Instance instance) {
   //   CHECK(it->second.command() == instance.command()) << "Insert case2";
   //   return false;
   // }
-  if (instance.ballot_ > it->second.ballot_) {
+  if (instance.ballot() > it->second.ballot()) {
     (*log)[i] = std::move(instance);
     return false;
   }
@@ -32,10 +45,11 @@ bool Insert(std::unordered_map<int64_t, Instance>* log, Instance instance) {
   return false;
 }
 
-void CommonLog::Append(Instance instance) {
+void CommonLog::Append(RPC_Instance inst) {
+  auto instance = ConvertInstance(std::move(inst));
   std::unique_lock<std::mutex> lock(mu_);
 
-  int64_t i = instance.index_;
+  int64_t i = instance.index();
   if (i <= global_last_executed_)
     return;
 
@@ -57,34 +71,34 @@ void CommonLog::Commit(int64_t index) {
     it = log_.find(index);
   }
 
-  if (it->second.state_ == 0)
-    it->second.state_ = 1;
+  if (IsInProgress(it->second))
+    it->second.set_state(multipaxos::COMMITTED);
 
   if (IsExecutable())
     cv_executable_.notify_one();
 }
 
-std::tuple<int64_t, int64_t> CommonLog::Execute() {
+std::tuple<int64_t, std::string> CommonLog::Execute() {
   std::unique_lock<std::mutex> lock(mu_);
   while (running_ && !IsExecutable())
     cv_executable_.wait(lock);
 
   if (!running_)
-    return {-1, -1};
+    return {-1, ""};
 
   auto it = log_.find(last_executed_ + 1);
-  Instance* instance = &it->second;
+  RPC_Instance* instance = &it->second;
   kvstore::KVResult result =
-      kvstore::Execute(instance->command_, kv_store_.get());
+      kvstore::Execute(instance->command(), kv_store_.get());
   ++last_executed_;
-  it->second.state_ = 2;
+  instance->set_state(multipaxos::EXECUTED);
   
   if (is_persistent_) {
     auto size = pwrite(store_fd_, &instance, sizeof(instance), store_offset_);
     store_offset_ += size;
   }
   
-  return {instance->client_id_, result.value_};
+  return {instance->client_id(), result.value_};
 }
 
 // void CommonLog::CommitUntil(int64_t leader_last_executed, int64_t ballot) {

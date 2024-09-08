@@ -22,8 +22,8 @@ enum InstanceState {
 
 message RPC_Command {
   CommandType type = 1;
-  int64 key = 2;
-  int64 value = 3;
+  string key = 2;
+  string value = 3;
 }
 
 message RPC_Instance {
