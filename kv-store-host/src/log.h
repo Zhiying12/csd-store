@@ -28,6 +28,6 @@ class Log {
 };
 
 Log* CreateLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store);
-Log* CreateLog(std::unique_ptr<kvstore::KVStore> kv_store, std::string store);
+Log* CreateLog(int id, std::unique_ptr<kvstore::KVStore> kv_store, std::string store);
 
 #endif

@@ -30,7 +30,7 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
     }
   } else {
     for (auto i = 0; i < partition_size_; i++) {
-      logs_.emplace_back(CreateLog(kvstore::CreateStore(config), config["store"]));
+      logs_.emplace_back(CreateLog(i, kvstore::CreateStore(config), config["store"]));
     }
   }
 }

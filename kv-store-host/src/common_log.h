@@ -18,13 +18,16 @@ bool Insert(std::unordered_map<int64_t, Instance>* log, Instance instance);
 
 class CommonLog : public Log {
  public:
-  explicit CommonLog(std::unique_ptr<kvstore::KVStore> kv_store, 
+  explicit CommonLog(int id, 
+                     std::unique_ptr<kvstore::KVStore> kv_store, 
                      std::string store)
       : kv_store_(std::move(kv_store)) {
     if (store == "file") {
       is_persistent_ = true;
-      log_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
-      store_fd_ = open("log", O_CREAT | O_RDWR | O_APPEND);
+      std::string file_name = "log";
+      file_name += std::to_string(id);
+      log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
+      store_fd_ = open("store", O_CREAT | O_RDWR | O_APPEND);
     }
   }
   CommonLog(CommonLog const& log) = delete;

@@ -43,7 +43,7 @@ void CommonLog::Append(Instance instance) {
     last_index_ = std::max(last_index_, i);
     cv_committable_.notify_all();
     if (is_persistent_) {
-      auto size = pwrite(log_fd_, &instance, sizeof(instance), log_offset_);
+      auto size = pwrite(log_fd_, &log_[i], sizeof(Instance), log_offset_);
       log_offset_ += size;
     }
   }
