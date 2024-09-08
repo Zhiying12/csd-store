@@ -68,8 +68,8 @@ void XrtLog::Append(Instance instance) {
     if (run) {
       run.wait();
       if (is_persistent_) {
-        auto size = pwrite(log_fd_, current_instance_bo_map_, 
-            sizeof(current_instance_bo_), log_offset_);
+        auto size = pwrite(log_fd_, &log_bo_[i], 
+            sizeof(Instance), log_offset_);
         log_offset_ += size;
       }
     } else
