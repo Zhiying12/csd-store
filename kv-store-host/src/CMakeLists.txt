@@ -64,7 +64,7 @@ target_link_libraries(grpc_proto
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF})
 
-add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-error=pedantic -Wno-error=unused-parameter)
+add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-error=pedantic -Wno-error=unused-parameter -g -ggdb)
 add_executable(replicant replicant.cc multipaxos.cc client_manager.cc client.cc
                log.cc xrt_log.cc common_log.cc kvstore.cc memkvstore.cc main.cc)
 
