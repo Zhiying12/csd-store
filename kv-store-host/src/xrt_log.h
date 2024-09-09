@@ -18,7 +18,7 @@
 #include "log.h"
 // #include "protobuf.h"
 
-const int BUFFER_SIZE = 10000;
+const int BUFFER_SIZE = 4096;
 const int STRUCT_FIELDS = 3;
 const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
 const int MAX_BUFFER_SIZE = VALUE_NUMS * 4;

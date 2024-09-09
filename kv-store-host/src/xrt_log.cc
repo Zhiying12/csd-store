@@ -35,9 +35,15 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
     // kernel call
     auto run = append_krnl_(log_bo_, current_instance_bo_, &instance);
     *current_instance_bo_map_ = instance;
+    log_bo_map_[i] = *current_instance_bo_map_;
     current_instance_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
     std::cout << current_instance_bo_map_->index_ << "\n";
     std::cout << current_instance_bo_map_->command_.key_ << "\n";
+    std::cout << log_bo_map_[i].index_ << "\n";
+    std::cout << log_bo_map_[i].command_.key_ << "\n";
+    log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+    std::cout << log_bo_map_[i].index_ << "\n";
+    std::cout << log_bo_map_[i].command_.key_ << "\n";
     if (run) {
       run.wait();
       current_instance_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
@@ -98,7 +104,7 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   ++last_executed_;
   bitmap_[last_executed_] = 3;
   // return {result_bo_map_->type_, kv_result};
-  return {-1, kv_result};
+  return {0, kv_result};
 }
 
 // void XrtLog::CommitUntil(int64_t leader_last_executed, int64_t ballot) {
