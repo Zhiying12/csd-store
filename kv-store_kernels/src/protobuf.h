@@ -3,11 +3,11 @@
 
 class Command {
  public:
-  inline Command() {}
+  Command() {}
 
   int64_t type_;
-  int64_t key_;
-  int64_t value_;
+  char key_[32];
+  char value_[512];
 };
 
 class Instance {
@@ -16,9 +16,8 @@ class Instance {
 
  public:
   Command command_;
-  int64_t ballot_ = 0;
+  int64_t ballot_;
   int64_t index_;
   int64_t client_id_;
-  // int state_;
+  int64_t state_ = 0;
 };
-// }  // namespace multipaxos
