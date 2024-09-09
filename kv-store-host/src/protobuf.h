@@ -5,8 +5,8 @@
 #include <cstring>
 #include <string>
 
-const int KEY_SIZE = 23;
-const int VALUE_SIZE = 500;
+const int KEY_SIZE = 31;
+const int VALUE_SIZE = 511;
 
 class Command {
  public:
