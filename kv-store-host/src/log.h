@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "kvstore.h"
-#include "protobuf.h"
 
 // XRT includes
 #include "experimental/xrt_bo.h"

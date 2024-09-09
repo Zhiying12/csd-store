@@ -5,7 +5,6 @@
 
 #include "json_fwd.h"
 #include "multipaxos.pb.h"
-#include "protobuf.h"
 
 namespace kvstore {
 

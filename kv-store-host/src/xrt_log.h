@@ -16,6 +16,7 @@
 #include "experimental/xrt_kernel.h"
 
 #include "log.h"
+#include "protobuf.h"
 // #include "protobuf.h"
 
 const int BUFFER_SIZE = 4096;

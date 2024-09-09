@@ -12,17 +12,22 @@ class Command {
  public:
   Command() {}
   Command(int64_t type, int64_t key, int64_t value)
-      : type_(type) {}
+      : type_(type) {
+    key_ = key;
+    value_ = value;
+  }
   
   Command(int64_t type, std::string const& key, std::string const& value)
       : type_(type) {
-    std::strcpy(key_, key.c_str());
-    std::strcpy(value_, value.c_str());
+    // std::strcpy(key_, key.c_str());
+    // std::strcpy(value_, value.c_str());
   }
 
   int64_t type_ = -1;
-  char key_[KEY_SIZE + 1];
-  char value_[VALUE_SIZE + 1];
+  // char key_[KEY_SIZE + 1];
+  // char value_[VALUE_SIZE + 1];
+  int64_t key_ = 101;
+  int64_t value_ = 201;
 };
 
 class Instance {
@@ -37,9 +42,9 @@ class Instance {
 
  public:
   Command command_;
-  int64_t ballot_;
-  int64_t index_;
-  int64_t client_id_;
+  int64_t ballot_ = 0;
+  int64_t index_ = 0;
+  int64_t client_id_ = 0;
   int64_t state_ = 0;
 };
 

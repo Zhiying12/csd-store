@@ -16,7 +16,7 @@
 
 using multipaxos::RPC_Instance;
 
-bool Insert(std::unordered_map<int64_t, Instance>* log, Instance instance);
+bool Insert(std::unordered_map<int64_t, RPC_Instance>* log, RPC_Instance instance);
 bool IsCommitted(multipaxos::RPC_Instance const& instance);
 bool IsExecuted(multipaxos::RPC_Instance const& instance);
 bool IsInProgress(multipaxos::RPC_Instance const& instance);
