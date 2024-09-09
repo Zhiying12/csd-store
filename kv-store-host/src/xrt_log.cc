@@ -6,15 +6,15 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     : id_(id),
       bitmap_(BUFFER_SIZE, 0) {
   append_krnl_ = xrt::kernel(device, uuid, "append_instance");
-  execute_krnl_ = xrt::kernel(device, uuid, "kv_store_top");
+  // execute_krnl_ = xrt::kernel(device, uuid, "kv_store_top");
 
   log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), append_krnl_.group_id(0));
   log_bo_map_ = log_bo_.map<Instance *>();
-  store_bo_ = xrt::bo(device, MAX_BUFFER_SIZE * sizeof(int), execute_krnl_.group_id(0));
+  // store_bo_ = xrt::bo(device, MAX_BUFFER_SIZE * sizeof(int), execute_krnl_.group_id(0));
   current_instance_bo_ = xrt::bo(device, sizeof(Instance), append_krnl_.group_id(1));
   current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
-  result_bo_ = xrt::bo(device, sizeof(Command), execute_krnl_.group_id(2));
-  result_bo_map_ = result_bo_.map<Command *>();
+  // result_bo_ = xrt::bo(device, sizeof(Command), execute_krnl_.group_id(2));
+  // result_bo_map_ = result_bo_.map<Command *>();
 
   if (store == "file") {
     is_persistent_ = true;
