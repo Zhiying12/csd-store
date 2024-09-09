@@ -2,37 +2,6 @@
 #include <iostream>
 #include "xrt_log.h"
 
-// bool IsCommitted(multipaxos::Instance const& instance) {
-//   return instance.state == 1;
-// }
-// bool IsExecuted(multipaxos::Instance const& instance) {
-//   return instance.state == 2;
-// }
-// bool IsInProgress(multipaxos::Instance const& instance) {
-//   return instance.state == 0;
-// }
-
-// //TODO move Insert and associated functions to kernel
-// bool Insert(Instance instance) {
-//   auto i = instance.index();
-//   auto it = log->find(i);
-//   if (it == log->end()) {
-//     (*log)[i] = std::move(instance);
-//     return true;
-//   }
-//   if (IsCommitted(it->second) || IsExecuted(it->second)) {
-//     CHECK(it->second.command() == instance.command()) << "Insert case2";
-//     return false;
-//   }
-//   if (instance.ballot() > it->second.ballot()) {
-//     (*log)[i] = std::move(instance);
-//     return false;
-//   }
-//   if (instance.ballot() == it->second.ballot())
-//     CHECK(it->second.command() == instance.command()) << "Insert case3";
-//   return false;
-// }
-
 XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     : id_(id),
       bitmap_(BUFFER_SIZE, 0) {
@@ -104,23 +73,23 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   if (!running_)
     return {-1, kv_result};
 
-  auto run = execute_krnl_(store_bo_, log_bo_, result_bo_, 
-                           last_executed_ + 1, MAX_BUFFER_SIZE);
-   if (run) {
-      run.wait();
-      result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-      kv_result = result_bo_map_->value_;
-      if (is_persistent_) {
-        auto size = pwrite(store_fd_, result_bo_map_, 
-            sizeof(result_bo_), store_offset_);
-        store_offset_ += size;
-      }
-   } else
-     std::cout << "false run in execute\n";
+  // auto run = execute_krnl_(store_bo_, log_bo_, result_bo_, 
+  //                          last_executed_ + 1, MAX_BUFFER_SIZE);
+  //  if (run) {
+  //     run.wait();
+  //     result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+  //     kv_result = result_bo_map_->value_;
+  //     if (is_persistent_) {
+  //       auto size = pwrite(store_fd_, result_bo_map_, 
+  //           sizeof(result_bo_), store_offset_);
+  //       store_offset_ += size;
+  //     }
+  //  } else
+  //    std::cout << "false run in execute\n";
+  // std::cout << result_bo_map_->key_ << " " << kv_result << "\n";
   
   ++last_executed_;
   bitmap_[last_executed_] = 3;
-  std::cout << result_bo_map_->key_ << " " << kv_result << "\n";
   return {result_bo_map_->type_, kv_result};
 }
 

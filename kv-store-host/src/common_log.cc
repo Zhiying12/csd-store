@@ -94,7 +94,7 @@ std::tuple<int64_t, std::string> CommonLog::Execute() {
   instance->set_state(multipaxos::EXECUTED);
   
   if (is_persistent_) {
-    auto size = pwrite(store_fd_, &instance, sizeof(instance), store_offset_);
+    auto size = pwrite(store_fd_, instance, sizeof(Instance), store_offset_);
     store_offset_ += size;
   }
   
