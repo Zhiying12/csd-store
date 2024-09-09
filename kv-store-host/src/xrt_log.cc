@@ -27,7 +27,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
   auto instance = ConvertInstance(inst);
   std::unique_lock<std::mutex> lock(mu_);
 
-  int64_t i = instance.index_;
+  int64_t i = instance.index_ - 1;
   if (i <= global_last_executed_)
     return;
 
