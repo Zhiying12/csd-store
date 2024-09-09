@@ -1,13 +1,13 @@
 #include "protobuf.h"
 
 // Insert a key-value pair into the store
-void append_instance(Instance* log, Instance* cur_instance_bo, Instance* instance) {
+void append_instance(Instance* log, Instance* cur_instance_bo, Instance instance) {
 //#pragma HLS PIPELINE
-  int64_t index = instance->index_;
-  if (instance->ballot_ > log[index].ballot_) {
-    log[index] = *instance;
-    *cur_instance_bo = *instance;
-  }
+  int64_t index = cur_instance_bo->index_;
+  // if (instance->ballot_ > log[index].ballot_) {
+    log[index] = *cur_instance_bo;
+    *cur_instance_bo = instance;
+  // }
 }
 
 // void kv_put(int key, int value, int* kv_store, int value_nums) {
