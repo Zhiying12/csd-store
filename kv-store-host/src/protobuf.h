@@ -26,8 +26,8 @@ class Command {
   int64_t type_ = -1;
   // char key_[KEY_SIZE + 1];
   // char value_[VALUE_SIZE + 1];
-  int64_t key_ = 101;
-  int64_t value_ = 201;
+  int64_t key_ = 12345678;
+  int64_t value_ = 87654321;
 };
 
 class Instance {
@@ -35,6 +35,12 @@ class Instance {
   Instance() {}
   Instance(int64_t ballot, int64_t index, int64_t client_id, 
            int64_t type, std::string const& key, std::string const& value)
+      : command_(type, key, value),
+        ballot_(ballot), 
+        index_(index), 
+        client_id_(client_id) {}
+  Instance(int64_t ballot, int64_t index, int64_t client_id, 
+           int64_t type, int64_t key, int64_t value)
       : command_(type, key, value),
         ballot_(ballot), 
         index_(index), 
