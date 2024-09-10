@@ -34,6 +34,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
   if (i <= global_last_executed_)
     return;
 
+  i %= BUFFER_SIZE;
   if (bitmap_[i] == 0 || bitmap_[i] == 1) {
     // kernel call
     // auto run = append_krnl_(log_bo_, current_instance_bo_, &instance);
@@ -70,8 +71,9 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   if (!running_)
     return {-1, ""};
 
+  auto i = (last_executed_ + 1) % BUFFER_SIZE;
   auto run = execute_krnl_(store_bo_, result_bo_, log_bo_, 
-                           last_executed_ + 1, KEY_VALUE_SIZE);
+                           i, KEY_VALUE_SIZE);
    if (run) {
       run.wait();
       result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
@@ -85,7 +87,7 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
   
   ++last_executed_;
-  bitmap_[last_executed_] = 3;
+  bitmap_[i] = 3;
   auto kv_result = std::to_string(result_bo_map_->value_);
   return {result_bo_map_->type_, kv_result};
 }

@@ -19,10 +19,10 @@
 #include "protobuf.h"
 // #include "protobuf.h"
 
-const int BUFFER_SIZE = 4096;
+const int BUFFER_SIZE = 8192;
 const int STRUCT_FIELDS = 3;
 const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
-const int KEY_VALUE_SIZE = 4096 * 2 * 2;
+const int KEY_VALUE_SIZE = 8192 * 2;
 
 
 class XrtLog : public Log {
@@ -74,7 +74,8 @@ class XrtLog : public Log {
   // std::vector<multipaxos::Instance> Instances() const;
 
   bool IsExecutable() const {
-    return bitmap_[last_executed_ + 1] == 2;
+    auto i = (last_executed_ + 1) % BUFFER_SIZE;
+    return bitmap_[i] == 2;
   }
 
   // multipaxos::Instance const* at(std::size_t i) const;
