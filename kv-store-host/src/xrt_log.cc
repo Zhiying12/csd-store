@@ -80,7 +80,7 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
       }
    } else
      std::cout << "false run in execute\n";
-  std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
+  //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
   
   ++last_executed_;
   bitmap_[last_executed_] = 3;
