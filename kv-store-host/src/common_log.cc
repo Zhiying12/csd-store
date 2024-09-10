@@ -21,7 +21,8 @@ CommonLog::CommonLog(int id,
     std::string file_name = "log";
     file_name += std::to_string(id);
     log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
-    store_fd_ = open("store", O_CREAT | O_RDWR | O_APPEND);
+    file_name = "store" + std::to_string(id);
+    store_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR | O_APPEND);
   }
 }
 

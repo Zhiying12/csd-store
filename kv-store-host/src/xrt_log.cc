@@ -19,8 +19,10 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
 
   if (store == "file") {
     is_persistent_ = true;
-    log_fd_ = open("log", O_CREAT | O_RDWR);
-    store_fd_ = open("store", O_CREAT | O_RDWR);
+    std::string file_name = "log" + std::to_string(id);
+    log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
+    file_name = "store" + std::to_string(id);
+    store_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR | O_APPEND);
   }
 }
 
