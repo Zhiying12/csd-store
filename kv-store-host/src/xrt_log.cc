@@ -23,7 +23,7 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     std::string file_name = "log" + std::to_string(id);
     log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
     file_name = "store" + std::to_string(id);
-    store_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR | O_APPEND);
+    store_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
   }
 }
 
@@ -41,6 +41,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
     *current_instance_bo_map_ = instance;
     current_instance_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
     auto run = append_krnl_(log_bo_, current_instance_bo_, &instance);
+    run.wait();
     // log_bo_map_[i] = instance;
     // log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
     if (is_persistent_) {
@@ -77,16 +78,16 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
 
   auto i = (last_executed_ + 1) % BUFFER_SIZE;
   auto run = execute_krnl_(log_bo_, result_bo_, i);
-   if (run) {
-      run.wait();
-      result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-      if (is_persistent_) {
-        auto size = pwrite(store_fd_, result_bo_map_, 
-            sizeof(result_bo_), store_offset_);
-        store_offset_ += size;
-      }
-   } else
-     std::cout << "false run in execute\n";
+  if (run) {
+    run.wait();
+    result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+    if (is_persistent_) {
+      auto size = pwrite(store_fd_, result_bo_map_, 
+          sizeof(result_bo_), store_offset_);
+      store_offset_ += size;
+    }
+  } else
+    std::cout << "false run in execute\n";
   //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
   
   ++last_executed_;

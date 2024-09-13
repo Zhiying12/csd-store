@@ -96,9 +96,9 @@ class CommonLog : public Log {
   std::condition_variable cv_committable_;
 
   bool is_persistent_ = false;
-  int log_fd_;
+  FILE* log_fd_;
   int log_offset_ = 0;
-  int store_fd_;
+  FILE* store_fd_;
   int store_offset_ = 0;
 };
 

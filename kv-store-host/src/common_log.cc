@@ -20,9 +20,9 @@ CommonLog::CommonLog(int id,
     is_persistent_ = true;
     std::string file_name = "log";
     file_name += std::to_string(id);
-    log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
+    log_fd_ = fopen(file_name.c_str(), "rw+");
     file_name = "store" + std::to_string(id);
-    store_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR | O_APPEND);
+    store_fd_ = fopen(file_name.c_str(), "rw+");
   }
 }
 
@@ -58,8 +58,10 @@ void CommonLog::Append(RPC_Instance inst) {
     last_index_ = std::max(last_index_, i);
     cv_committable_.notify_all();
     if (is_persistent_) {
-      auto size = pwrite(log_fd_, &log_[i], sizeof(RPC_Instance), log_offset_);
-      log_offset_ += size;
+      fwrite(&log_[i], sizeof(RPC_Instance), 1, log_fd_);
+      fflush(log_fd_);
+      // auto size = pwrite(log_fd_, &log_[i], sizeof(RPC_Instance), log_offset_);
+      // log_offset_ += size;
     }
   }
 }
@@ -95,8 +97,10 @@ std::tuple<int64_t, std::string> CommonLog::Execute() {
   instance->set_state(multipaxos::EXECUTED);
   
   if (is_persistent_) {
-    auto size = pwrite(store_fd_, instance, sizeof(RPC_Instance), store_offset_);
-    store_offset_ += size;
+    fwrite(instance, sizeof(RPC_Instance), 1, store_fd_);
+    fflush(store_fd_);
+    // auto size = pwrite(store_fd_, instance, sizeof(RPC_Instance), store_offset_);
+    // store_offset_ += size;
   }
   
   return {instance->client_id(), result.value_};
