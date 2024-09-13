@@ -6,14 +6,14 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     : id_(id),
       bitmap_(BUFFER_SIZE, 0) {
   append_krnl_ = xrt::kernel(device, uuid, "append_instance");
-  execute_krnl_ = xrt::kernel(device, uuid, "kv_store_top");
+  execute_krnl_ = xrt::kernel(device, uuid, "kv_store_find");
 
-  xrt::bo::flags flags = xrt::bo::flags::device_only;
-  store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
+  xrt::bo::flags flags = xrt::bo::flags::p2p;
+  // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
   result_bo_ = xrt::bo(device, sizeof(Command), execute_krnl_.group_id(1));
   result_bo_map_ = result_bo_.map<Command *>();
 
-  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), execute_krnl_.group_id(2));
+  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), flags, append_krnl_.group_id(0));
   log_bo_map_ = log_bo_.map<Instance *>();
   current_instance_bo_ = xrt::bo(device, sizeof(Instance), append_krnl_.group_id(1));
   current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
@@ -76,8 +76,7 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
     return {-1, ""};
 
   auto i = (last_executed_ + 1) % BUFFER_SIZE;
-  auto run = execute_krnl_(store_bo_, result_bo_, log_bo_, 
-                           i, KEY_VALUE_SIZE);
+  auto run = execute_krnl_(log_bo_, result_bo_, i);
    if (run) {
       run.wait();
       result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
