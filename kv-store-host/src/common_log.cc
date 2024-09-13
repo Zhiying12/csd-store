@@ -20,9 +20,9 @@ CommonLog::CommonLog(int id,
     is_persistent_ = true;
     std::string file_name = "log";
     file_name += std::to_string(id);
-    log_fd_ = fopen(file_name.c_str(), "rw+");
+    log_fd_ = fopen(file_name.c_str(), "w+");
     file_name = "store" + std::to_string(id);
-    store_fd_ = fopen(file_name.c_str(), "rw+");
+    store_fd_ = fopen(file_name.c_str(), "w+");
   }
 }
 
