@@ -12,7 +12,7 @@ void append_instance(Instance* log, Instance* cur_instance_bo, Instance* instanc
     log[index].command_.value_ = cur_instance_bo->command_.value_;
     log[index].index_ = cur_instance_bo->index_;
     log[index].state_ = cur_instance_bo->state_;
-    *cur_instance_bo = *instance;
+//    *cur_instance_bo = *instance;
   // }
 }
 
@@ -53,4 +53,10 @@ void kv_store_top(int* kv_store, Command* result_bo, Instance* log, int index, i
     } else if (cmd.type_ == 1) {
         result_bo->value_ = kv_get(kv_store, cmd.key_, value_nums);
     }
+}
+
+void kv_store_find(Instance* log, Command* result_bo, int index) {
+	result_bo->type_ = log[index].client_id_;
+	result_bo->key_ = log[index].command_.key_;
+	result_bo->value_ = log[index].command_.value_;
 }
