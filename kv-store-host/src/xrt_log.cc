@@ -4,7 +4,8 @@
 
 XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     : id_(id),
-      bitmap_(BUFFER_SIZE, 0) {
+      bitmap_(BUFFER_SIZE, 0),
+      count_(0) {
   append_krnl_ = xrt::kernel(device, uuid, "append_instance");
   // execute_krnl_ = xrt::kernel(device, uuid, "kv_store_find");
 
