@@ -49,7 +49,9 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
       log_offset_ += size;
     }
     last_index_ = std::max(last_index_, instance.index_);
-    if (i == BUFFER_SIZE - 1) {
+    count_++;
+    if (count_ == BUFFER_SIZE) {
+      count_ = 0;
       std::fill(bitmap_.begin(), bitmap_.end(), 1);
       log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
       cv_committable_.notify_all();
@@ -59,7 +61,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
 
 void XrtLog::Commit(int64_t index) {
   std::unique_lock<std::mutex> lock(mu_);
-  index %= BUFFER_SIZE;
+  index = (index - 1) % BUFFER_SIZE;
   while (bitmap_[index] != 1) {
     cv_committable_.wait(lock);
   }
