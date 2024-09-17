@@ -43,7 +43,7 @@ void Replicant::Start() {
 
 void Replicant::Stop() {
   StopServer();
-  StopExecutorThread();
+  // StopExecutorThread();
   multi_paxos_.Stop();
 }
 

@@ -35,7 +35,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
   if (i <= global_last_executed_)
     return;
 
-  i %= BUFFER_SIZE;
+  i = (i - 1) % BUFFER_SIZE;
   // if (bitmap_[i] == 0 || bitmap_[i] == 1) {
     // kernel call
     // *current_instance_bo_map_ = instance;
@@ -48,7 +48,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
           sizeof(Instance), log_offset_);
       log_offset_ += size;
     }
-    last_index_ = std::max(last_index_, i);
+    last_index_ = std::max(last_index_, instance.index_);
     if (i == BUFFER_SIZE - 1) {
       std::fill(bitmap_.begin(), bitmap_.end(), 1);
       log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
