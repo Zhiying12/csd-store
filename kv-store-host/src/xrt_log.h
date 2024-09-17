@@ -98,7 +98,6 @@ class XrtLog : public Log {
   std::condition_variable cv_committable_;
   int id_;
   std::vector<int64_t> bitmap_;
-  std::atomic<int32_t> count_;
   
   xrt::kernel append_krnl_;
   // xrt::kernel commit_krnl_;
