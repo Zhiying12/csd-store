@@ -59,12 +59,12 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
 
 void XrtLog::Commit(int64_t index) {
   std::unique_lock<std::mutex> lock(mu_);
-  index %= BUFFER_SIZE;
+  index = (index - 1) % BUFFER_SIZE;
   while (bitmap_[index] != 1) {
     cv_committable_.wait(lock);
   }
 
-  bitmap_[index] = 2;
+  // bitmap_[index] = 2;
 
   if (IsExecutable())
     cv_executable_.notify_one();
