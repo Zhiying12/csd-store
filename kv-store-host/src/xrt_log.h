@@ -19,7 +19,7 @@
 #include "protobuf.h"
 // #include "protobuf.h"
 
-const int BUFFER_SIZE = 8192;
+const int BUFFER_SIZE = 64;
 const int STRUCT_FIELDS = 3;
 const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
 const int KEY_VALUE_SIZE = 8192 * 2;
