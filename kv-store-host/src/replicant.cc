@@ -37,7 +37,7 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
 
 void Replicant::Start() {
   multi_paxos_.Start();
-  StartExecutorThread();
+  // StartExecutorThread();
   StartServer();
 }
 
