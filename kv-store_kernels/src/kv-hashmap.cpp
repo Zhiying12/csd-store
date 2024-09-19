@@ -55,8 +55,10 @@ void kv_store_top(int* kv_store, Command* result_bo, Instance* log, int index, i
     }
 }
 
-void kv_store_find(Instance* log, Command* result_bo, int index) {
+void kv_store_find(Instance* log, Command* result_bo, int size) {
+	for (int index = 0; index < size; index++) {
 	result_bo->type_ = log[index].client_id_;
 	result_bo->key_ = log[index].command_.key_;
 	result_bo->value_ = log[index].command_.value_;
+	}
 }

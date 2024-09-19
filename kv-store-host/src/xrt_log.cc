@@ -103,7 +103,7 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
 
   if (last_executed_ >= last_applied_index) {
     std::cout << "slow execution\n";
-    auto run = execute_krnl_(log_bo_, result_bo_, 0);
+    auto run = execute_krnl_(log_bo_, result_bo_, BUFFER_SIZE);
     run.wait();
     result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
     last_applied_index += BUFFER_SIZE;
@@ -116,9 +116,10 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
   // bitmap_[last_executed_] = 3;
   
+  auto offset = last_executed_ % BUFFER_SIZE;
   ++last_executed_;
-  auto kv_result = std::to_string(result_bo_map_->value_);
-  return {result_bo_map_->type_, kv_result};
+  auto kv_result = std::to_string(result_bo_map_[offset].value_);
+  return {result_bo_map_[offset].type_, kv_result};
 }
 
 void XrtLog::EarlyApply() {
@@ -132,7 +133,7 @@ void XrtLog::EarlyApply() {
         break;
       *append_counts_[current_buffer_index] = 0;
     }
-    auto run = execute_krnl_(log_bo_, result_bo_, 0);
+    auto run = execute_krnl_(log_bo_, result_bo_, BUFFER_SIZE);
     run.wait();
     {
       std::unique_lock<std::mutex> lock(mu_);
