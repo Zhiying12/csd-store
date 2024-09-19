@@ -68,7 +68,6 @@ void Client::Read() {
           if (command.type() != FALSE) {
             auto r = multi_paxos_->Replicate(std::move(command), id_);
             if (r.type_ == ResultType::kOk) {
-              Write("87654321");
               return;
             }
             if (r.type_ == ResultType::kRetry) {
