@@ -79,7 +79,7 @@ class XrtLog : public Log {
   // std::vector<multipaxos::Instance> Instances() const;
 
   bool IsExecutable() const {
-    auto i = (last_executed_ + 1) % BUFFER_COUNT;
+    auto i = (last_executed_ / BUFFER_SIZE) % BUFFER_COUNT;
     return bitmap_[i] == 2;
   }
 
