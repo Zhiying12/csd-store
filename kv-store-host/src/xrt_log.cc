@@ -4,19 +4,27 @@
 
 XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     : id_(id),
-      bitmap_(BUFFER_SIZE, 0) {
-  append_krnl_ = xrt::kernel(device, uuid, "append_instance");
-  // execute_krnl_ = xrt::kernel(device, uuid, "kv_store_find");
+      bitmap_(BUFFER_COUNT, 0),
+      proposals_(BUFFER_COUNT, std::vector<Instance>(BUFFER_SIZE)),
+      append_counts_(BUFFER_COUNT),
+      commit_counts_(BUFFER_COUNT) {
+  // append_krnl_ = xrt::kernel(device, uuid, "append_instance");
+  execute_krnl_ = xrt::kernel(device, uuid, "kv_store_find");
 
   xrt::bo::flags flags = xrt::bo::flags::p2p;
-  // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
-  // result_bo_ = xrt::bo(device, sizeof(Command), execute_krnl_.group_id(1));
-  // result_bo_map_ = result_bo_.map<Command *>();
-
-  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), flags, append_krnl_.group_id(0));
+  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), flags, execute_krnl_.group_id(0));
   log_bo_map_ = log_bo_.map<Instance *>();
+  // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
+  result_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Command), execute_krnl_.group_id(1));
+  result_bo_map_ = result_bo_.map<Command *>();
+
   // current_instance_bo_ = xrt::bo(device, sizeof(Instance), append_krnl_.group_id(1));
   // current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
+
+  for (int i = 0; i < BUFFER_COUNT; i++) {
+    append_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
+    commit_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
+  }
 
   if (store == "file") {
     is_persistent_ = true;
@@ -34,40 +42,55 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
   int64_t i = instance.index_;
   if (i <= global_last_executed_)
     return;
+  
+  auto buffer_index = (i - 1) / BUFFER_SIZE;
+  auto buffer_offset = (i - 1) % BUFFER_SIZE;
+  buffer_index %= BUFFER_COUNT;
 
-  i = (i - 1) % BUFFER_SIZE;
+  proposals_[buffer_index][buffer_offset] = std::move(instance);
+  *append_counts_[buffer_index] += 1;
+  if (*append_counts_[buffer_index] == BUFFER_SIZE) {
+    std::unique_lock<std::mutex> lock(mu_);
+    for (int index = 0; index < BUFFER_SIZE; index++) {
+      log_bo_map_[index] = std::move(proposals_[buffer_index][index]);
+    }
+    log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+    bitmap_[buffer_index] = 1;
+    last_index_ = std::max(last_index_, i);
+    current_buffer_index = buffer_index;
+    cv_appliable_.notify_one();
+    cv_committable_.notify_all();
+  }
+
   // if (bitmap_[i] == 0 || bitmap_[i] == 1) {
     // kernel call
     // *current_instance_bo_map_ = instance;
     // current_instance_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
     // auto run = append_krnl_(log_bo_, current_instance_bo_, &instance);
     // run.wait();
-    log_bo_map_[i] = instance;
+    // log_bo_map_[i] = instance;
+    // last_index_ = std::max(last_index_, instance.index_);
     if (is_persistent_) {
-      auto size = pwrite(log_fd_, (void *)current_instance_bo_map_, 
-          sizeof(Instance), log_offset_);
+      auto size = pwrite(log_fd_, (void *)log_bo_map_, 
+          sizeof(log_bo_map_), log_offset_);
       log_offset_ += size;
-    }
-    last_index_ = std::max(last_index_, instance.index_);
-    if (i == BUFFER_SIZE - 1) {
-      std::fill(bitmap_.begin(), bitmap_.end(), 1);
-      log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-      cv_committable_.notify_all();
     }
   // }
 }
 
 void XrtLog::Commit(int64_t index) {
-  std::unique_lock<std::mutex> lock(mu_);
-  index = (index - 1) % BUFFER_SIZE;
-  while (bitmap_[index] != 1) {
-    cv_committable_.wait(lock);
+  auto buffer_index = ((index - 1) / BUFFER_SIZE) % BUFFER_COUNT;
+  *commit_counts_[buffer_index] += 1;
+  if (*commit_counts_[buffer_index] == BUFFER_SIZE) {
+    std::unique_lock<std::mutex> lock(mu_);
+    while (bitmap_[buffer_index] != 1) {
+      cv_committable_.wait(lock);
+    }
+    bitmap_[buffer_index] = 2;
+    if (IsExecutable())
+      cv_executable_.notify_one();
   }
 
-  // bitmap_[index] = 2;
-
-  if (IsExecutable())
-    cv_executable_.notify_one();
 }
 
 std::tuple<int64_t, std::string> XrtLog::Execute() {
@@ -78,24 +101,45 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   if (!running_)
     return {-1, ""};
 
-  // auto i = (last_executed_ + 1) % BUFFER_SIZE;
-  // auto run = execute_krnl_(log_bo_, result_bo_, i);
-  // if (run) {
-  //   run.wait();
-  //   result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-  //   if (is_persistent_) {
-  //     auto size = pwrite(store_fd_, result_bo_map_, 
-  //         sizeof(result_bo_), store_offset_);
-  //     store_offset_ += size;
-  //   }
-  // } else
-  //   std::cout << "false run in execute\n";
-  // //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
+  if (last_executed_ >= last_applied_index) {
+    std::cout << "slow execution\n";
+    auto run = execute_krnl_(log_bo_, result_bo_, 0);
+    run.wait();
+    result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+    last_applied_index += BUFFER_SIZE;
+  }
+  if (is_persistent_) {
+    auto size = pwrite(store_fd_, result_bo_map_, 
+        sizeof(result_bo_map_), store_offset_);
+    store_offset_ += size;
+  }
+  //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
+  // bitmap_[last_executed_] = 3;
   
-  // ++last_executed_;
-  // bitmap_[i] = 3;
+  ++last_executed_;
   auto kv_result = std::to_string(result_bo_map_->value_);
   return {result_bo_map_->type_, kv_result};
+}
+
+void XrtLog::EarlyApply() {
+  while (true) {
+    {
+      std::unique_lock<std::mutex> lock(mu_);
+      while (running_ && *append_counts_[current_buffer_index] != BUFFER_SIZE) {
+        cv_appliable_.wait(lock);
+      }
+      if (!running_)
+        break;
+      *append_counts_[current_buffer_index] = 0;
+    }
+    auto run = execute_krnl_(log_bo_, result_bo_, 0);
+    run.wait();
+    {
+      std::unique_lock<std::mutex> lock(mu_);
+      result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+      last_applied_index += BUFFER_SIZE;
+    }
+  }
 }
 
 // void XrtLog::CommitUntil(int64_t leader_last_executed, int64_t ballot) {

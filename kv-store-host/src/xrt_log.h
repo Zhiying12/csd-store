@@ -1,6 +1,7 @@
 #ifndef XRT_LOG_H_
 #define XRT_LOG_H_
 
+#include <atomic>
 #include <condition_variable>
 #include <cstdint>
 #include <fcntl.h>
@@ -19,6 +20,7 @@
 #include "protobuf.h"
 // #include "protobuf.h"
 
+const int BUFFER_COUNT = 2;
 const int BUFFER_SIZE = 64;
 const int STRUCT_FIELDS = 3;
 const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
@@ -62,11 +64,14 @@ class XrtLog : public Log {
     std::unique_lock<std::mutex> lock(mu_);
     running_ = false;
     cv_executable_.notify_one();
+    cv_appliable_.notify_one();
   }
 
   void Append(multipaxos::RPC_Instance inst) override;
   void Commit(int64_t index) override;
   std::tuple<int64_t, std::string> Execute() override;
+
+  void EarlyApply();
 
   // void CommitUntil(int64_t leader_last_executed, int64_t ballot);
   // void TrimUntil(int64_t leader_global_last_executed);
@@ -74,7 +79,7 @@ class XrtLog : public Log {
   // std::vector<multipaxos::Instance> Instances() const;
 
   bool IsExecutable() const {
-    auto i = (last_executed_ + 1) % BUFFER_SIZE;
+    auto i = (last_executed_ + 1) % BUFFER_COUNT;
     return bitmap_[i] == 2;
   }
 
@@ -96,14 +101,20 @@ class XrtLog : public Log {
   mutable std::mutex mu_;
   std::condition_variable cv_executable_;
   std::condition_variable cv_committable_;
+  
   int id_;
+  int64_t last_applied_index = 0;
+  int64_t current_buffer_index = 0;
   std::vector<int64_t> bitmap_;
+  std::vector<std::vector<Instance>> proposals_;
+  std::vector<std::unique_ptr<std::atomic<int32_t>>> append_counts_;
+  std::vector<std::unique_ptr<std::atomic<int32_t>>> commit_counts_;
+  std::condition_variable cv_appliable_;
   
   xrt::kernel append_krnl_;
-  // xrt::kernel commit_krnl_;
   xrt::kernel execute_krnl_;
-  xrt::bo current_instance_bo_;
-  Instance* current_instance_bo_map_;
+  // xrt::bo current_instance_bo_;
+  // Instance* current_instance_bo_map_;
   xrt::bo result_bo_;
   Command* result_bo_map_;
   Instance* log_bo_map_;
