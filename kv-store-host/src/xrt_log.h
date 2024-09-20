@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <mutex>
 #include <optional>
+#include <thread>
 #include <tuple>
 #include <unistd.h>
 #include <unordered_map>
@@ -65,6 +66,7 @@ class XrtLog : public Log {
     running_ = false;
     cv_executable_.notify_one();
     cv_appliable_.notify_one();
+    apply_thread_.join();
   }
 
   void Append(multipaxos::RPC_Instance inst) override;
@@ -78,8 +80,7 @@ class XrtLog : public Log {
 
   // std::vector<multipaxos::Instance> Instances() const;
 
-  bool IsExecutable() const {
-    auto i = (last_executed_ / BUFFER_SIZE) % BUFFER_COUNT;
+  bool IsExecutable(int64_t i) const {
     return bitmap_[i] == 2;
   }
 
@@ -110,6 +111,7 @@ class XrtLog : public Log {
   std::vector<std::unique_ptr<std::atomic<int32_t>>> append_counts_;
   std::vector<std::unique_ptr<std::atomic<int32_t>>> commit_counts_;
   std::condition_variable cv_appliable_;
+  std::thread apply_thread_;
   
   xrt::kernel append_krnl_;
   xrt::kernel execute_krnl_;

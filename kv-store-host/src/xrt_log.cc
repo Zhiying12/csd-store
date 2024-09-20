@@ -25,6 +25,7 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
     append_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
     commit_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
   }
+  apply_thread_ = std::thread(&XrtLog::EarlyApply, this);
 
   if (store == "file") {
     is_persistent_ = true;
@@ -87,7 +88,8 @@ void XrtLog::Commit(int64_t index) {
       cv_committable_.wait(lock);
     }
     bitmap_[buffer_index] = 2;
-    if (IsExecutable())
+    *commit_counts_[buffer_index] = 0;
+    if (IsExecutable(buffer_index))
       cv_executable_.notify_one();
   }
 
@@ -95,7 +97,8 @@ void XrtLog::Commit(int64_t index) {
 
 std::tuple<int64_t, std::string> XrtLog::Execute() {
   std::unique_lock<std::mutex> lock(mu_);
-  while (running_ && !IsExecutable())
+  auto buffer_index = (last_executed_ / BUFFER_SIZE) % BUFFER_COUNT;
+  while (running_ && !IsExecutable(buffer_index))
     cv_executable_.wait(lock);
 
   if (!running_)
@@ -117,6 +120,9 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   // bitmap_[last_executed_] = 3;
   
   auto offset = last_executed_ % BUFFER_SIZE;
+  if (offset == BUFFER_SIZE - 1) {
+    bitmap_[buffer_index] = 3;
+  }
   ++last_executed_;
   auto kv_result = std::to_string(result_bo_map_[offset].value_);
   return {result_bo_map_[offset].type_, kv_result};

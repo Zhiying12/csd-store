@@ -23,7 +23,6 @@ class Log {
   virtual void Append(multipaxos::RPC_Instance instance) = 0;
   virtual void Commit(int64_t index) = 0;
   virtual std::tuple<int64_t, std::string> Execute() = 0;
-  virtual bool IsExecutable() const = 0;
 };
 
 Log* CreateLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store);
