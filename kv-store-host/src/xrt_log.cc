@@ -11,15 +11,15 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
   // append_krnl_ = xrt::kernel(device, uuid, "append_instance");
   execute_krnl_ = xrt::kernel(device, uuid, "kv_store_find");
 
-  xrt::bo::flags flags = xrt::bo::flags::p2p;
-  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), flags, execute_krnl_.group_id(0));
-  log_bo_map_ = log_bo_.map<Instance *>();
-  // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
+  // xrt::bo::flags flags = xrt::bo::flags::p2p;
+  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), execute_krnl_.group_id(0));
   result_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), execute_krnl_.group_id(1));
+  log_bo_map_ = log_bo_.map<Instance *>();
   result_bo_map_ = result_bo_.map<Instance *>();
 
   // current_instance_bo_ = xrt::bo(device, sizeof(Instance), append_krnl_.group_id(1));
   // current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
+  // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
 
   for (int i = 0; i < BUFFER_COUNT; i++) {
     append_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
