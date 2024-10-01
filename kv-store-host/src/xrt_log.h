@@ -118,8 +118,8 @@ class XrtLog : public Log {
   // xrt::bo current_instance_bo_;
   // Instance* current_instance_bo_map_;
   xrt::bo result_bo_;
-  Command* result_bo_map_;
   Instance* log_bo_map_;
+  Instance* result_bo_map_;
 
   bool is_persistent_ = false;
   int log_fd_;
