@@ -104,7 +104,7 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
   if (!running_)
     return {-1, ""};
 
-  if (last_executed_ <= last_applied_index) {
+  if (last_executed_ >= last_applied_index) {
     std::cout << "slow execution\n";
     auto run = execute_krnl_(log_bo_, result_bo_, BUFFER_SIZE);
     run.wait();
