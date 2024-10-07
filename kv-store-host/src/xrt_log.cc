@@ -21,7 +21,10 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
   // current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
   // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
 
+  Instance inst;
   for (int i = 0; i < BUFFER_COUNT; i++) {
+    log_bo_map_[i] = inst;
+    result_bo_map_[i] = inst;
     append_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
     commit_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
   }
