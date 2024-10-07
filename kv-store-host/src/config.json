@@ -5,5 +5,6 @@
     "store": "mem",
     "db_path": "/tmp/testdb",
     "partition_size": 8,
-    "log": "xrt"
+    "log": "xrt",
+    "binary_file": "kv-store.xclbin"
 }

@@ -21,11 +21,14 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
       client_manager_(id_, config["peers"].size(), &multi_paxos_),
       partition_size_(config["partition_size"]) {
   if (config["log"] == "xrt") {
-    auto binaryFile = "kv-store.xclbin";
-    std::string dev_id = "1";
-    device_ = xrt::device(dev_id);
-    auto uuid = device_.load_xclbin(binaryFile);
+    std::string binaryFile = config["binary_file"];
     for (auto i = 0; i < partition_size_; i++) {
+      std::string dev_id = "0";
+      if (i % 2 == 0)
+        device_ = xrt::device(dev_id);
+      else
+        device_ = xrt::device("1");
+      auto uuid = device_.load_xclbin(binaryFile);
       logs_.emplace_back(CreateLog(i, device_, uuid, config["store"]));
     }
   } else {
