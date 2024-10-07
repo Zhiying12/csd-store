@@ -3,9 +3,9 @@
     	
     <storageModule moduleId="org.eclipse.cdt.core.settings">
         		
-        <cconfiguration id="com.xilinx.ide.accel.config.hwlink.sw_emu.2015068443">
+        <cconfiguration id="com.xilinx.ide.accel.config.hwlink.sw_emu.1315213164">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hwlink.sw_emu.2015068443" moduleId="org.eclipse.cdt.core.settings" name="Emulation-SW">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hwlink.sw_emu.1315213164" moduleId="org.eclipse.cdt.core.settings" name="Emulation-SW">
                 				
                 <externalSettings/>
                 				
@@ -23,17 +23,17 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildProperties="" description="" id="com.xilinx.ide.accel.config.hwlink.sw_emu.2015068443" name="Emulation-SW" parent="com.xilinx.ide.accel.config.hwlink.sw_emu">
+                <configuration buildProperties="" description="" id="com.xilinx.ide.accel.config.hwlink.sw_emu.1315213164" name="Emulation-SW" parent="com.xilinx.ide.accel.config.hwlink.sw_emu">
                     					
-                    <folderInfo id="com.xilinx.ide.accel.config.hwlink.sw_emu.2015068443." name="/" resourcePath="">
+                    <folderInfo id="com.xilinx.ide.accel.config.hwlink.sw_emu.1315213164." name="/" resourcePath="">
                         						
-                        <toolChain id="com.xilinx.ide.accel.toolchain.hwLinker.sw_emu.1188268298" name="Hardware Linker" superClass="com.xilinx.ide.accel.toolchain.hwLinker.sw_emu">
+                        <toolChain id="com.xilinx.ide.accel.toolchain.hwLinker.sw_emu.891484952" name="Hardware Linker" superClass="com.xilinx.ide.accel.toolchain.hwLinker.sw_emu">
                             							
-                            <targetPlatform id="com.xilinx.ide.accel.config.hwlink.sw_emu.2015068443..568648152" name=""/>
+                            <targetPlatform id="com.xilinx.ide.accel.config.hwlink.sw_emu.1315213164..1161519156" name=""/>
                             							
-                            <builder buildPath="${workspace_loc:/kv-store_system_hw_link}/Emulation-SW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.link.1765354039" managedBuildOn="true" name="Link Project Builder.Emulation-SW" superClass="com.xilinx.ide.accel.builder.link"/>
+                            <builder buildPath="${workspace_loc:/kv-store_system_hw_link}/Emulation-SW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.link.1946728321" managedBuildOn="true" name="Link Project Builder.Emulation-SW" superClass="com.xilinx.ide.accel.builder.link"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.hwLinker.2015531969" name="V++ Kernel Linker" superClass="com.xilinx.ide.accel.tool.hwLinker"/>
+                            <tool id="com.xilinx.ide.accel.tool.hwLinker.200307211" name="V++ Kernel Linker" superClass="com.xilinx.ide.accel.tool.hwLinker"/>
                             						
                         </toolChain>
                         					
@@ -47,9 +47,9 @@
             		
         </cconfiguration>
         		
-        <cconfiguration id="com.xilinx.ide.accel.config.hwlink.hw_emu.401394453">
+        <cconfiguration id="com.xilinx.ide.accel.config.hwlink.hw_emu.788090474">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hwlink.hw_emu.401394453" moduleId="org.eclipse.cdt.core.settings" name="Emulation-HW">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hwlink.hw_emu.788090474" moduleId="org.eclipse.cdt.core.settings" name="Emulation-HW">
                 				
                 <externalSettings/>
                 				
@@ -67,17 +67,17 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildProperties="" description="" id="com.xilinx.ide.accel.config.hwlink.hw_emu.401394453" name="Emulation-HW" parent="com.xilinx.ide.accel.config.hwlink.hw_emu">
+                <configuration buildProperties="" description="" id="com.xilinx.ide.accel.config.hwlink.hw_emu.788090474" name="Emulation-HW" parent="com.xilinx.ide.accel.config.hwlink.hw_emu">
                     					
-                    <folderInfo id="com.xilinx.ide.accel.config.hwlink.hw_emu.401394453." name="/" resourcePath="">
+                    <folderInfo id="com.xilinx.ide.accel.config.hwlink.hw_emu.788090474." name="/" resourcePath="">
                         						
-                        <toolChain id="com.xilinx.ide.accel.toolchain.hwLinker.hw_emu.1425392474" name="Hardware Linker" superClass="com.xilinx.ide.accel.toolchain.hwLinker.hw_emu">
+                        <toolChain id="com.xilinx.ide.accel.toolchain.hwLinker.hw_emu.1188064385" name="Hardware Linker" superClass="com.xilinx.ide.accel.toolchain.hwLinker.hw_emu">
                             							
-                            <targetPlatform id="com.xilinx.ide.accel.config.hwlink.hw_emu.401394453..404000329" name=""/>
+                            <targetPlatform id="com.xilinx.ide.accel.config.hwlink.hw_emu.788090474..1138491856" name=""/>
                             							
-                            <builder buildPath="${workspace_loc:/kv-store_system_hw_link}/Emulation-HW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.link.1412320996" managedBuildOn="true" name="Link Project Builder.Emulation-HW" superClass="com.xilinx.ide.accel.builder.link"/>
+                            <builder buildPath="${workspace_loc:/kv-store_system_hw_link}/Emulation-HW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.link.1259186952" managedBuildOn="true" name="Link Project Builder.Emulation-HW" superClass="com.xilinx.ide.accel.builder.link"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.hwLinker.1031823388" name="V++ Kernel Linker" superClass="com.xilinx.ide.accel.tool.hwLinker"/>
+                            <tool id="com.xilinx.ide.accel.tool.hwLinker.1900352548" name="V++ Kernel Linker" superClass="com.xilinx.ide.accel.tool.hwLinker"/>
                             						
                         </toolChain>
                         					
@@ -91,9 +91,9 @@
             		
         </cconfiguration>
         		
-        <cconfiguration id="com.xilinx.ide.accel.config.hwlink.hw.1428963504">
+        <cconfiguration id="com.xilinx.ide.accel.config.hwlink.hw.7497185">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hwlink.hw.1428963504" moduleId="org.eclipse.cdt.core.settings" name="Hardware">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hwlink.hw.7497185" moduleId="org.eclipse.cdt.core.settings" name="Hardware">
                 				
                 <externalSettings/>
                 				
@@ -111,17 +111,17 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildProperties="" description="" id="com.xilinx.ide.accel.config.hwlink.hw.1428963504" name="Hardware" parent="com.xilinx.ide.accel.config.hwlink.hw">
+                <configuration buildProperties="" description="" id="com.xilinx.ide.accel.config.hwlink.hw.7497185" name="Hardware" parent="com.xilinx.ide.accel.config.hwlink.hw">
                     					
-                    <folderInfo id="com.xilinx.ide.accel.config.hwlink.hw.1428963504." name="/" resourcePath="">
+                    <folderInfo id="com.xilinx.ide.accel.config.hwlink.hw.7497185." name="/" resourcePath="">
                         						
-                        <toolChain id="com.xilinx.ide.accel.toolchain.hwLinker.hw.192810792" name="Hardware Linker" superClass="com.xilinx.ide.accel.toolchain.hwLinker.hw">
+                        <toolChain id="com.xilinx.ide.accel.toolchain.hwLinker.hw.1760350309" name="Hardware Linker" superClass="com.xilinx.ide.accel.toolchain.hwLinker.hw">
                             							
-                            <targetPlatform id="com.xilinx.ide.accel.config.hwlink.hw.1428963504..1000277739" name=""/>
+                            <targetPlatform id="com.xilinx.ide.accel.config.hwlink.hw.7497185..350677771" name=""/>
                             							
-                            <builder buildPath="${workspace_loc:/kv-store_system_hw_link}/Hardware" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.link.1359008312" managedBuildOn="true" name="Link Project Builder.Hardware" superClass="com.xilinx.ide.accel.builder.link"/>
+                            <builder buildPath="${workspace_loc:/kv-store_system_hw_link}/Hardware" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.link.194026617" managedBuildOn="true" name="Link Project Builder.Hardware" superClass="com.xilinx.ide.accel.builder.link"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.hwLinker.1104481020" name="V++ Kernel Linker" superClass="com.xilinx.ide.accel.tool.hwLinker"/>
+                            <tool id="com.xilinx.ide.accel.tool.hwLinker.936293275" name="V++ Kernel Linker" superClass="com.xilinx.ide.accel.tool.hwLinker"/>
                             						
                         </toolChain>
                         					
@@ -141,7 +141,7 @@
     	
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
         		
-        <project id="kv-store_system_hw_link.com.xilinx.ide.accel.hwLinkProjectType.1909016809" name="Hw Link Project" projectType="com.xilinx.ide.accel.hwLinkProjectType"/>
+        <project id="kv-store_system_hw_link.com.xilinx.ide.accel.hwLinkProjectType.334387998" name="Hw Link Project" projectType="com.xilinx.ide.accel.hwLinkProjectType"/>
         	
     </storageModule>
     	
@@ -150,5 +150,7 @@
         <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
         	
     </storageModule>
+    	
+    <storageModule moduleId="refreshScope"/>
     
 </cproject>

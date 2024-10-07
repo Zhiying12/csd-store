@@ -3,9 +3,9 @@
     	
     <storageModule moduleId="org.eclipse.cdt.core.settings">
         		
-        <cconfiguration id="com.xilinx.ide.accel.config.sw_emu.x86.972428118">
+        <cconfiguration id="com.xilinx.ide.accel.config.sw_emu.x86.6884537">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.sw_emu.x86.972428118" moduleId="org.eclipse.cdt.core.settings" name="Emulation-SW">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.sw_emu.x86.6884537" moduleId="org.eclipse.cdt.core.settings" name="Emulation-SW">
                 				
                 <externalSettings/>
                 				
@@ -25,29 +25,29 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildArtefactType="com.xilinx.accelerated.buildArtefactType.hostExe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.xilinx.accelerated.buildArtefactType.hostExe" description="" id="com.xilinx.ide.accel.config.sw_emu.x86.972428118" name="Emulation-SW" parent="com.xilinx.ide.accel.config.sw_emu.x86">
+                <configuration buildArtefactType="com.xilinx.accelerated.buildArtefactType.hostExe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.xilinx.accelerated.buildArtefactType.hostExe" description="" id="com.xilinx.ide.accel.config.sw_emu.x86.6884537" name="Emulation-SW" parent="com.xilinx.ide.accel.config.sw_emu.x86">
                     					
-                    <folderInfo id="com.xilinx.ide.accel.config.sw_emu.x86.972428118." name="/" resourcePath="">
+                    <folderInfo id="com.xilinx.ide.accel.config.sw_emu.x86.6884537." name="/" resourcePath="">
                         						
-                        <toolChain id="com.xilinx.ide.accel.toolchain.sw_emu.debug.463542751" name="Accelerated Host Application Toolchain (x86_64)" superClass="com.xilinx.ide.accel.toolchain.sw_emu.debug">
+                        <toolChain id="com.xilinx.ide.accel.toolchain.sw_emu.debug.344692580" name="Accelerated Host Application Toolchain (x86_64)" superClass="com.xilinx.ide.accel.toolchain.sw_emu.debug">
                             							
-                            <targetPlatform id="com.xilinx.ide.accel.config.sw_emu.x86.972428118..1784825056" name=""/>
+                            <targetPlatform id="com.xilinx.ide.accel.config.sw_emu.x86.6884537..1035046717" name=""/>
                             							
-                            <builder buildPath="${workspace_loc:/kv-store}/Emulation-SW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.host.184952020" managedBuildOn="true" name="Accelerated Host Application Builder.Emulation-SW" superClass="com.xilinx.ide.accel.builder.host"/>
+                            <builder buildPath="${workspace_loc:/kv-store}/Emulation-SW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.host.250678260" managedBuildOn="true" name="Accelerated Host Application Builder.Emulation-SW" superClass="com.xilinx.ide.accel.builder.host"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.emconfigutil.1642452917" name="emconfigutil" superClass="com.xilinx.ide.accel.tool.emconfigutil"/>
+                            <tool id="com.xilinx.ide.accel.tool.emconfigutil.740560121" name="emconfigutil" superClass="com.xilinx.ide.accel.tool.emconfigutil"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.gcc_compiler.sw_emu.debug.1796435536" name="GCC Host Compiler (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_compiler.sw_emu.debug">
+                            <tool id="com.xilinx.ide.accel.tool.gcc_compiler.sw_emu.debug.1290447104" name="GCC Host Compiler (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_compiler.sw_emu.debug">
                                 								
-                                <inputType id="com.xilinx.ide.accel.managedbuild.input.cpp.639379636" superClass="com.xilinx.ide.accel.managedbuild.input.cpp"/>
+                                <inputType id="com.xilinx.ide.accel.managedbuild.input.cpp.148284545" superClass="com.xilinx.ide.accel.managedbuild.input.cpp"/>
                                 								
-                                <inputType id="com.xilinx.ide.accel.managedbuild.input.c.197282223" superClass="com.xilinx.ide.accel.managedbuild.input.c"/>
+                                <inputType id="com.xilinx.ide.accel.managedbuild.input.c.1614368109" superClass="com.xilinx.ide.accel.managedbuild.input.c"/>
                                 							
                             </tool>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.gcc_linker.hw.2103427311" name="GCC Host Linker (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_linker.hw">
+                            <tool id="com.xilinx.ide.accel.tool.gcc_linker.hw.109949227" name="GCC Host Linker (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_linker.hw">
                                 								
-                                <option id="com.xilinx.ide.accel.cpp.linker.option.libs.x86.1368154053" superClass="com.xilinx.ide.accel.cpp.linker.option.libs.x86" valueType="libFiles">
+                                <option id="com.xilinx.ide.accel.cpp.linker.option.libs.x86.683129419" superClass="com.xilinx.ide.accel.cpp.linker.option.libs.x86" valueType="libFiles">
                                     									
                                     <listOptionValue builtIn="false" value="uuid"/>
                                     									
@@ -63,7 +63,7 @@
                                     								
                                 </option>
                                 								
-                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1852272598" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1287025767" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
                                     <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
                                     									
@@ -85,9 +85,9 @@
             		
         </cconfiguration>
         		
-        <cconfiguration id="com.xilinx.ide.accel.config.hw_emu.x86.1787386189">
+        <cconfiguration id="com.xilinx.ide.accel.config.hw_emu.x86.1108863737">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hw_emu.x86.1787386189" moduleId="org.eclipse.cdt.core.settings" name="Emulation-HW">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hw_emu.x86.1108863737" moduleId="org.eclipse.cdt.core.settings" name="Emulation-HW">
                 				
                 <externalSettings/>
                 				
@@ -107,29 +107,29 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildArtefactType="com.xilinx.accelerated.buildArtefactType.hostExe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.xilinx.accelerated.buildArtefactType.hostExe" description="" id="com.xilinx.ide.accel.config.hw_emu.x86.1787386189" name="Emulation-HW" parent="com.xilinx.ide.accel.config.hw_emu.x86">
+                <configuration buildArtefactType="com.xilinx.accelerated.buildArtefactType.hostExe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.xilinx.accelerated.buildArtefactType.hostExe" description="" id="com.xilinx.ide.accel.config.hw_emu.x86.1108863737" name="Emulation-HW" parent="com.xilinx.ide.accel.config.hw_emu.x86">
                     					
-                    <folderInfo id="com.xilinx.ide.accel.config.hw_emu.x86.1787386189." name="/" resourcePath="">
+                    <folderInfo id="com.xilinx.ide.accel.config.hw_emu.x86.1108863737." name="/" resourcePath="">
                         						
-                        <toolChain id="com.xilinx.ide.accel.toolchain.hw_emu.debug.927962880" name="Accelerated Host Application Toolchain (x86_64)" superClass="com.xilinx.ide.accel.toolchain.hw_emu.debug">
+                        <toolChain id="com.xilinx.ide.accel.toolchain.hw_emu.debug.1864066617" name="Accelerated Host Application Toolchain (x86_64)" superClass="com.xilinx.ide.accel.toolchain.hw_emu.debug">
                             							
-                            <targetPlatform id="com.xilinx.ide.accel.config.hw_emu.x86.1787386189..1635146620" name=""/>
+                            <targetPlatform id="com.xilinx.ide.accel.config.hw_emu.x86.1108863737..175833476" name=""/>
                             							
-                            <builder buildPath="${workspace_loc:/kv-store}/Emulation-HW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.host.384500828" managedBuildOn="true" name="Accelerated Host Application Builder.Emulation-HW" superClass="com.xilinx.ide.accel.builder.host"/>
+                            <builder buildPath="${workspace_loc:/kv-store}/Emulation-HW" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.host.1526111607" managedBuildOn="true" name="Accelerated Host Application Builder.Emulation-HW" superClass="com.xilinx.ide.accel.builder.host"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.emconfigutil.2122628433" name="emconfigutil" superClass="com.xilinx.ide.accel.tool.emconfigutil"/>
+                            <tool id="com.xilinx.ide.accel.tool.emconfigutil.154304236" name="emconfigutil" superClass="com.xilinx.ide.accel.tool.emconfigutil"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.gcc_compiler.hw_emu.debug.1210715114" name="GCC Host Compiler (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_compiler.hw_emu.debug">
+                            <tool id="com.xilinx.ide.accel.tool.gcc_compiler.hw_emu.debug.533101056" name="GCC Host Compiler (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_compiler.hw_emu.debug">
                                 								
-                                <inputType id="com.xilinx.ide.accel.managedbuild.input.cpp.1600548385" superClass="com.xilinx.ide.accel.managedbuild.input.cpp"/>
+                                <inputType id="com.xilinx.ide.accel.managedbuild.input.cpp.1876841646" superClass="com.xilinx.ide.accel.managedbuild.input.cpp"/>
                                 								
-                                <inputType id="com.xilinx.ide.accel.managedbuild.input.c.1003653686" superClass="com.xilinx.ide.accel.managedbuild.input.c"/>
+                                <inputType id="com.xilinx.ide.accel.managedbuild.input.c.165294787" superClass="com.xilinx.ide.accel.managedbuild.input.c"/>
                                 							
                             </tool>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.gcc_linker.hw.1066471940" name="GCC Host Linker (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_linker.hw">
+                            <tool id="com.xilinx.ide.accel.tool.gcc_linker.hw.687914544" name="GCC Host Linker (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_linker.hw">
                                 								
-                                <option id="com.xilinx.ide.accel.cpp.linker.option.libs.x86.63676063" superClass="com.xilinx.ide.accel.cpp.linker.option.libs.x86" valueType="libFiles">
+                                <option id="com.xilinx.ide.accel.cpp.linker.option.libs.x86.1739783806" superClass="com.xilinx.ide.accel.cpp.linker.option.libs.x86" valueType="libFiles">
                                     									
                                     <listOptionValue builtIn="false" value="uuid"/>
                                     									
@@ -145,7 +145,7 @@
                                     								
                                 </option>
                                 								
-                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.419150197" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1731018619" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
                                     <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
                                     									
@@ -167,9 +167,9 @@
             		
         </cconfiguration>
         		
-        <cconfiguration id="com.xilinx.ide.accel.config.hw.x86.1770415047">
+        <cconfiguration id="com.xilinx.ide.accel.config.hw.x86.303864118">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hw.x86.1770415047" moduleId="org.eclipse.cdt.core.settings" name="Hardware">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.xilinx.ide.accel.config.hw.x86.303864118" moduleId="org.eclipse.cdt.core.settings" name="Hardware">
                 				
                 <externalSettings/>
                 				
@@ -189,29 +189,29 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration artifactName="${ProjName}" buildArtefactType="com.xilinx.accelerated.buildArtefactType.hostExe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.xilinx.accelerated.buildArtefactType.hostExe" cleanCommand="rm -rf" description="" id="com.xilinx.ide.accel.config.hw.x86.1770415047" name="Hardware" parent="com.xilinx.ide.accel.config.hw.x86">
+                <configuration artifactName="${ProjName}" buildArtefactType="com.xilinx.accelerated.buildArtefactType.hostExe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.xilinx.accelerated.buildArtefactType.hostExe" cleanCommand="rm -rf" description="" id="com.xilinx.ide.accel.config.hw.x86.303864118" name="Hardware" parent="com.xilinx.ide.accel.config.hw.x86">
                     					
-                    <folderInfo id="com.xilinx.ide.accel.config.hw.x86.1770415047." name="/" resourcePath="">
+                    <folderInfo id="com.xilinx.ide.accel.config.hw.x86.303864118." name="/" resourcePath="">
                         						
-                        <toolChain id="com.xilinx.ide.accel.toolchain.hw.239499867" name="Accelerated Host Application Toolchain (x86_64)" superClass="com.xilinx.ide.accel.toolchain.hw">
+                        <toolChain id="com.xilinx.ide.accel.toolchain.hw.1043011866" name="Accelerated Host Application Toolchain (x86_64)" superClass="com.xilinx.ide.accel.toolchain.hw">
                             							
-                            <targetPlatform id="com.xilinx.ide.accel.config.hw.x86.1770415047..1500560117" name=""/>
+                            <targetPlatform id="com.xilinx.ide.accel.config.hw.x86.303864118..1069076852" name=""/>
                             							
-                            <builder buildPath="${workspace_loc:/kv-store}/Hardware" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.host.174817964" managedBuildOn="true" name="Accelerated Host Application Builder.Hardware" superClass="com.xilinx.ide.accel.builder.host"/>
+                            <builder buildPath="${workspace_loc:/kv-store}/Hardware" enableAutoBuild="true" id="com.xilinx.ide.accel.builder.host.1988645563" managedBuildOn="true" name="Accelerated Host Application Builder.Hardware" superClass="com.xilinx.ide.accel.builder.host"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.emconfigutil.1984795283" name="emconfigutil" superClass="com.xilinx.ide.accel.tool.emconfigutil"/>
+                            <tool id="com.xilinx.ide.accel.tool.emconfigutil.1235131709" name="emconfigutil" superClass="com.xilinx.ide.accel.tool.emconfigutil"/>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.gcc_compiler.hw.1643296194" name="GCC Host Compiler (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_compiler.hw">
+                            <tool id="com.xilinx.ide.accel.tool.gcc_compiler.hw.940097721" name="GCC Host Compiler (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_compiler.hw">
                                 								
-                                <inputType id="com.xilinx.ide.accel.managedbuild.input.cpp.70300883" superClass="com.xilinx.ide.accel.managedbuild.input.cpp"/>
+                                <inputType id="com.xilinx.ide.accel.managedbuild.input.cpp.408675484" superClass="com.xilinx.ide.accel.managedbuild.input.cpp"/>
                                 								
-                                <inputType id="com.xilinx.ide.accel.managedbuild.input.c.1143686979" superClass="com.xilinx.ide.accel.managedbuild.input.c"/>
+                                <inputType id="com.xilinx.ide.accel.managedbuild.input.c.932683976" superClass="com.xilinx.ide.accel.managedbuild.input.c"/>
                                 							
                             </tool>
                             							
-                            <tool id="com.xilinx.ide.accel.tool.gcc_linker.hw.574789219" name="GCC Host Linker (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_linker.hw">
+                            <tool id="com.xilinx.ide.accel.tool.gcc_linker.hw.1081153052" name="GCC Host Linker (x86_64)" superClass="com.xilinx.ide.accel.tool.gcc_linker.hw">
                                 								
-                                <option id="com.xilinx.ide.accel.cpp.linker.option.libs.x86.1734132564" superClass="com.xilinx.ide.accel.cpp.linker.option.libs.x86" valueType="libFiles">
+                                <option id="com.xilinx.ide.accel.cpp.linker.option.libs.x86.504243660" superClass="com.xilinx.ide.accel.cpp.linker.option.libs.x86" valueType="libFiles">
                                     									
                                     <listOptionValue builtIn="false" value="uuid"/>
                                     									
@@ -227,7 +227,7 @@
                                     								
                                 </option>
                                 								
-                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1320307164" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1282632539" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
                                     <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
                                     									
@@ -255,7 +255,7 @@
     	
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
         		
-        <project id="kv-store.com.xilinx.ide.accel.hostProject.x86.1277917080" name="Accelerated Host Application Project (x86_64)" projectType="com.xilinx.ide.accel.hostProject.x86"/>
+        <project id="kv-store.com.xilinx.ide.accel.hostProject.x86.530012833" name="Accelerated Host Application Project (x86_64)" projectType="com.xilinx.ide.accel.hostProject.x86"/>
         	
     </storageModule>
     	
@@ -266,5 +266,7 @@
     </storageModule>
     	
     <storageModule moduleId="org.eclipse.cdt.core.pathentry"/>
+    	
+    <storageModule moduleId="refreshScope"/>
     
 </cproject>

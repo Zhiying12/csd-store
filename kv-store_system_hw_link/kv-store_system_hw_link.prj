@@ -1,12 +1,99 @@
 <?xml version="1.0" encoding="ASCII"?>
 <hwlink:HwLinkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:hwlink="http://www.xilinx.com/acceleration/hwlink" name="kv-store_system_hw_link" platform="/opt/xilinx/platforms/xilinx_u2_gen3x4_xdma_gc_2_202110_1/xilinx_u2_gen3x4_xdma_gc_2_202110_1.xpfm" systemProject="kv-store_system" cpu="pl">
-  <configuration name="Emulation-SW" id="com.xilinx.ide.accel.config.hwlink.sw_emu.2015068443">
-    <configBuildOptions xsi:type="hwlink:LinkOptions"/>
+  <configuration name="Emulation-SW" id="com.xilinx.ide.accel.config.hwlink.sw_emu.1315213164">
+    <configBuildOptions xsi:type="hwlink:LinkOptions">
+      <binaryContainers name="binary_container_1">
+        <kernels name="kv_store_test" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_test_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+        <kernels name="kv_store_find" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_find_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+      </binaryContainers>
+    </configBuildOptions>
   </configuration>
-  <configuration name="Emulation-HW" id="com.xilinx.ide.accel.config.hwlink.hw_emu.401394453">
-    <configBuildOptions xsi:type="hwlink:LinkOptions" target="hw_emu"/>
+  <configuration name="Emulation-HW" id="com.xilinx.ide.accel.config.hwlink.hw_emu.788090474">
+    <configBuildOptions xsi:type="hwlink:LinkOptions" target="hw_emu">
+      <binaryContainers name="binary_container_1">
+        <kernels name="kv_store_test" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_test_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+        <kernels name="kv_store_find" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_find_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+      </binaryContainers>
+    </configBuildOptions>
+    <lastBuildOptions xsi:type="hwlink:LinkOptions" target="hw_emu">
+      <binaryContainers name="binary_container_1">
+        <kernels name="kv_store_find" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_find_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+        <kernels name="kv_store_test" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_test_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+      </binaryContainers>
+    </lastBuildOptions>
   </configuration>
-  <configuration name="Hardware" id="com.xilinx.ide.accel.config.hwlink.hw.1428963504">
-    <configBuildOptions xsi:type="hwlink:LinkOptions" target="hw"/>
+  <configuration name="Hardware" id="com.xilinx.ide.accel.config.hwlink.hw.7497185">
+    <configBuildOptions xsi:type="hwlink:LinkOptions" target="hw">
+      <binaryContainers name="binary_container_1">
+        <kernels name="kv_store_test" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_test_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+        <kernels name="kv_store_find" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_find_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+      </binaryContainers>
+    </configBuildOptions>
+    <lastBuildOptions xsi:type="hwlink:LinkOptions" target="hw">
+      <binaryContainers name="binary_container_1">
+        <kernels name="kv_store_test" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_test_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+        <kernels name="kv_store_find" projectName="kv-store_kernels">
+          <computeUnits name="kv_store_find_1" slr="">
+            <args name="log" master="true" memory=""/>
+            <args name="result_bo" master="true" memory=""/>
+            <args name="size"/>
+          </computeUnits>
+        </kernels>
+      </binaryContainers>
+    </lastBuildOptions>
   </configuration>
 </hwlink:HwLinkProject>
