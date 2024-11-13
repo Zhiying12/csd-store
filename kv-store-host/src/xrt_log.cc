@@ -40,10 +40,7 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
 }
 
 void XrtLog::Append(multipaxos::RPC_Instance inst) {
-  auto instance = ConvertInstance(inst);
-  // std::unique_lock<std::mutex> lock(mu_);
-
-  int64_t i = instance.index_;
+  int64_t i = inst.index();
   if (i <= global_last_executed_)
     return;
   
@@ -51,6 +48,11 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
   auto buffer_offset = (i - 1) % BUFFER_SIZE;
   buffer_index %= BUFFER_COUNT;
 
+  if (bitmap_[buffer_index] != 0) {
+    return;
+  }
+
+  auto instance = ConvertInstance(inst);
   proposals_[buffer_index][buffer_offset] = std::move(instance);
   *append_counts_[buffer_index] += 1;
   if (*append_counts_[buffer_index] == BUFFER_SIZE) {
@@ -66,20 +68,11 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
     cv_committable_.notify_all();
   }
 
-  // if (bitmap_[i] == 0 || bitmap_[i] == 1) {
-    // kernel call
-    // *current_instance_bo_map_ = instance;
-    // current_instance_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    // auto run = append_krnl_(log_bo_, current_instance_bo_, &instance);
-    // run.wait();
-    // log_bo_map_[i] = instance;
-    // last_index_ = std::max(last_index_, instance.index_);
-    if (is_persistent_) {
-      auto size = pwrite(log_fd_, (void *)log_bo_map_, 
-          sizeof(log_bo_map_), log_offset_);
-      log_offset_ += size;
-    }
-  // }
+  if (is_persistent_) {
+    auto size = pwrite(log_fd_, (void *)log_bo_map_, 
+        sizeof(log_bo_map_), log_offset_);
+    log_offset_ += size;
+  }
 }
 
 void XrtLog::Commit(int64_t index) {
@@ -119,12 +112,10 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
         sizeof(result_bo_map_), store_offset_);
     store_offset_ += size;
   }
-  //std::cout << result_bo_map_->key_ << " " << result_bo_map_->value_ << "\n";
-  // bitmap_[last_executed_] = 3;
   
   auto offset = last_executed_ % BUFFER_SIZE;
   if (offset == BUFFER_SIZE - 1) {
-    bitmap_[buffer_index] = 3;
+    bitmap_[buffer_index] = 0;
   }
   ++last_executed_;
   auto kv_result = std::to_string(result_bo_map_[offset].command_.value_);
