@@ -129,7 +129,7 @@ void MultiPaxos::StopCommitThread() {
 Result MultiPaxos::Replicate(multipaxos::RPC_Command command, int64_t client_id) {
   auto ballot = Ballot();
   if (IsLeader(ballot, id_)) {
-    int64_t p_index = hash_function(command.key()) % partition_size_;
+    int64_t p_index = client_id % partition_size_;
     return RunAcceptPhase(ballot, logs_[p_index]->AdvanceLastIndex(), std::move(command),
                           client_id, p_index);
   }

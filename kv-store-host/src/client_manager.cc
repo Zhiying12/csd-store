@@ -28,6 +28,9 @@ void ClientManager::Stop(int64_t id) {
   std::unique_lock<std::mutex> lock(mu_);
   // DLOG(INFO) << " client_manager stopped client " << id;
   auto it = clients_.find(id);
+  if (it == clients_.end()) {
+    return;
+  }
   // CHECK(it != clients_.end());
   it->second->Stop();
   clients_.erase(it);

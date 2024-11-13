@@ -67,12 +67,9 @@ void Client::Read() {
           auto command = Parse(&request_);
           if (command.type() != FALSE) {
             auto r = multi_paxos_->Replicate(std::move(command), id_);
-            if (r.type_ == ResultType::kOk) {
-              return;
-            }
             if (r.type_ == ResultType::kRetry) {
               Write("retry");
-            } else {
+            } else if (r.type_ == ResultType::kSomeoneElseLeader) {
               // CHECK(r.type_ == ResultType::kSomeoneElseLeader);
               Write("leader is " + std::to_string(r.leader_));
             }
@@ -82,6 +79,7 @@ void Client::Read() {
         } else {
           manager_->Stop(id_);
         }
+        Read();
       });
 }
 
@@ -90,11 +88,5 @@ void Client::Write(std::string const& response) {
   response_stream << response << '\n';
 
   auto self(shared_from_this());
-  boost::asio::async_write(socket_, response_,
-                    [this, self, response](std::error_code ec, size_t) {
-                      if (ec) {
-                        manager_->Stop(id_);
-                      }
-                      Read();
-                    });
+  boost::asio::write(socket_, response_);
 }

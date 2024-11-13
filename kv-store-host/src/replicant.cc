@@ -91,13 +91,12 @@ void Replicant::StopExecutorThread() {
 }
 
 void Replicant::ExecutorThread(int index) {
+  int64_t id;
+  std::string result;
   for (;;) {
-    int64_t id;
-    std::string result;
     std::tie(id, result) = logs_[index]->Execute();
     if (id == -1)
       break;
-    // auto [id, result] = std::move(*r);
     auto client = client_manager_.Get(id);
     if (client)
       client->Write(result);
