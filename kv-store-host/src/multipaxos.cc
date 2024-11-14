@@ -250,7 +250,9 @@ Result MultiPaxos::RunAcceptPhase(int64_t ballot,
   if (ballot == ballot_) {
     ++state->num_rpcs_;
     ++state->num_oks_;
-    logs_[partition_index]->Append(instance);
+    if (!logs_[partition_index]->Append(instance)) {
+      return Result{ResultType::kRetry, -1};
+    }
   } else {
     auto leader = ExtractLeaderId(ballot_);
     return Result{ResultType::kSomeoneElseLeader, leader};

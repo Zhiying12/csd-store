@@ -62,7 +62,7 @@ class CommonLog : public Log {
     cv_executable_.notify_one();
   }
 
-  void Append(RPC_Instance inst);
+  bool Append(RPC_Instance inst);
   void Commit(int64_t index);
   std::tuple<int64_t, std::string> Execute();
 

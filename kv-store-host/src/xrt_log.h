@@ -21,7 +21,7 @@
 #include "protobuf.h"
 // #include "protobuf.h"
 
-const int BUFFER_COUNT = 2;
+const int BUFFER_COUNT = 64;
 const int BUFFER_SIZE = 64;
 const int STRUCT_FIELDS = 3;
 const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
@@ -69,7 +69,7 @@ class XrtLog : public Log {
     apply_thread_.join();
   }
 
-  void Append(multipaxos::RPC_Instance inst) override;
+  bool Append(multipaxos::RPC_Instance inst) override;
   void Commit(int64_t index) override;
   std::tuple<int64_t, std::string> Execute() override;
 

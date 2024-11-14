@@ -46,13 +46,13 @@ bool Insert(std::unordered_map<int64_t, RPC_Instance>* log, RPC_Instance instanc
   return false;
 }
 
-void CommonLog::Append(RPC_Instance inst) {
+bool CommonLog::Append(RPC_Instance inst) {
   auto instance = ConvertInstance(std::move(inst));
   std::unique_lock<std::mutex> lock(mu_);
 
   int64_t i = instance.index();
   if (i <= global_last_executed_)
-    return;
+    return true;
 
   if (Insert(&log_, std::move(instance))) {
     last_index_ = std::max(last_index_, i);
@@ -64,6 +64,7 @@ void CommonLog::Append(RPC_Instance inst) {
       // log_offset_ += size;
     }
   }
+  return true;
 }
 
 void CommonLog::Commit(int64_t index) {

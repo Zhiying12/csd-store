@@ -39,17 +39,17 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
   }
 }
 
-void XrtLog::Append(multipaxos::RPC_Instance inst) {
+bool XrtLog::Append(multipaxos::RPC_Instance inst) {
   int64_t i = inst.index();
   if (i <= global_last_executed_)
-    return;
+    return true;
   
   auto buffer_index = (i - 1) / BUFFER_SIZE;
   auto buffer_offset = (i - 1) % BUFFER_SIZE;
   buffer_index %= BUFFER_COUNT;
 
   if (bitmap_[buffer_index] != 0) {
-    return;
+    return false;
   }
 
   auto instance = ConvertInstance(inst);
@@ -73,6 +73,7 @@ void XrtLog::Append(multipaxos::RPC_Instance inst) {
         sizeof(log_bo_map_), log_offset_);
     log_offset_ += size;
   }
+  return true;
 }
 
 void XrtLog::Commit(int64_t index) {
