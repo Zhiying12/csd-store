@@ -4,7 +4,8 @@
     "peers": ["0.0.0.0:10000"],
     "store": "mem",
     "db_path": "/tmp/testdb",
-    "partition_size": 8,
+    "device_count": 1,
+    "partition_size": 2,
     "log": "xrt",
     "binary_file": "kv-store.xclbin"
 }

@@ -54,6 +54,7 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("/opt/xilinx/xrt/include/")
 
 link_directories("/opt/xilinx/xrt/lib/")
+set(OPENCL_LIBS OpenCL pthread)
 
 add_library(grpc_proto
   ${grpc_srcs}
@@ -66,7 +67,7 @@ target_link_libraries(grpc_proto
 
 add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-error=pedantic -Wno-error=unused-parameter -g -ggdb)
 add_executable(replicant replicant.cc multipaxos.cc client_manager.cc client.cc
-               log.cc xrt_log.cc common_log.cc kvstore.cc memkvstore.cc main.cc)
+               log.cc xrt_log.cc common_log.cc kvstore.cc memkvstore.cc xcl2.cpp main.cc)
 
 find_package(gflags REQUIRED)
 
@@ -76,4 +77,5 @@ target_link_libraries(replicant
     grpc_proto
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
+    ${OPENCL_LIBS}
     "xrt_coreutil")

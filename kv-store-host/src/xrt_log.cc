@@ -2,29 +2,35 @@
 #include <iostream>
 #include "xrt_log.h"
 
-XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
+XrtLog::XrtLog(int id,
+               int device_id,
+               cl::Context context, 
+               cl::Program program,
+               cl::CommandQueue& queue,
+               std::string store)
     : id_(id),
       bitmap_(BUFFER_COUNT, 0),
       proposals_(BUFFER_COUNT, std::vector<Instance>(BUFFER_SIZE)),
       append_counts_(BUFFER_COUNT),
-      commit_counts_(BUFFER_COUNT) {
-  // append_krnl_ = xrt::kernel(device, uuid, "append_instance");
-  execute_krnl_ = xrt::kernel(device, uuid, "kv_store_find");
+      commit_counts_(BUFFER_COUNT),
+      queue_(queue),
+      transfer_event_(1),
+      execution_event_(1) {
+  cl_int err;
+  execute_krnl_ = cl::Kernel(program, "kv_store_find", &err);
 
-  // xrt::bo::flags flags = xrt::bo::flags::p2p;
-  log_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), execute_krnl_.group_id(0));
-  result_bo_ = xrt::bo(device, BUFFER_SIZE * sizeof(Instance), execute_krnl_.group_id(1));
-  log_bo_map_ = log_bo_.map<Instance *>();
-  result_bo_map_ = result_bo_.map<Instance *>();
+  log_bo_ = cl::Buffer(context, CL_MEM_COPY_HOST_PTR | CL_MEM_WRITE_ONLY, 
+      BUFFER_SIZE * sizeof(Instance), nullptr, &err);
+  result_bo_ = cl::Buffer(context, CL_MEM_COPY_HOST_PTR | CL_MEM_READ_ONLY, 
+      BUFFER_SIZE * sizeof(Instance), nullptr, &err);
 
-  // current_instance_bo_ = xrt::bo(device, sizeof(Instance), append_krnl_.group_id(1));
-  // current_instance_bo_map_ = current_instance_bo_.map<Instance *>();
-  // store_bo_ = xrt::bo(device, KEY_VALUE_SIZE * sizeof(int), flags, execute_krnl_.group_id(0));
+  err = execute_krnl_.setArg(0, log_bo_);
+  err = execute_krnl_.setArg(1, result_bo_);
 
-  Instance inst;
+  // Instance inst;
   for (int i = 0; i < BUFFER_COUNT; i++) {
-    log_bo_map_[i] = inst;
-    result_bo_map_[i] = inst;
+    // log_bo_map_[i] = inst;
+    // result_bo_map_[i] = inst;
     append_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
     commit_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
   }
@@ -32,9 +38,12 @@ XrtLog::XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store)
 
   if (store == "file") {
     is_persistent_ = true;
-    std::string file_name = "log" + std::to_string(id);
+    std::string path = "/export/home/SmartSSD-disk/";
+    if (id % 2 == 1)
+      path = "/export/home/SmartSSD-disk2/";
+    std::string file_name = path + "log" + std::to_string(id);
     log_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
-    file_name = "store" + std::to_string(id);
+    file_name = path + "store" + std::to_string(id);
     store_fd_ = open(file_name.c_str(), O_CREAT | O_RDWR, 0777);
   }
 }
@@ -57,21 +66,16 @@ bool XrtLog::Append(multipaxos::RPC_Instance inst) {
   *append_counts_[buffer_index] += 1;
   if (*append_counts_[buffer_index] == BUFFER_SIZE) {
     std::unique_lock<std::mutex> lock(mu_);
-    for (int index = 0; index < BUFFER_SIZE; index++) {
-      log_bo_map_[index] = std::move(proposals_[buffer_index][index]);
-    }
-    log_bo_.sync(XCL_BO_SYNC_BO_TO_DEVICE);
     bitmap_[buffer_index] = 1;
     last_index_ = std::max(last_index_, i);
-    current_buffer_index = buffer_index;
     cv_appliable_.notify_one();
     cv_committable_.notify_all();
   }
 
   if (is_persistent_) {
-    auto size = pwrite(log_fd_, (void *)log_bo_map_, 
-        sizeof(log_bo_map_), log_offset_);
-    log_offset_ += size;
+    // auto size = pwrite(log_fd_, (void *)log_bo_map_, 
+    //     sizeof(log_bo_map_), log_offset_);
+    // log_offset_ += size;
   }
   return true;
 }
@@ -85,7 +89,6 @@ void XrtLog::Commit(int64_t index) {
       cv_committable_.wait(lock);
     }
     bitmap_[buffer_index] = 2;
-    *commit_counts_[buffer_index] = 0;
     if (IsExecutable(buffer_index))
       cv_executable_.notify_one();
   }
@@ -103,43 +106,82 @@ std::tuple<int64_t, std::string> XrtLog::Execute() {
 
   if (last_executed_ >= last_applied_index) {
     std::cout << "slow execution\n";
-    auto run = execute_krnl_(log_bo_, result_bo_, BUFFER_SIZE);
-    run.wait();
-    result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+    cl_int err;
+    cl::Event read_event;
+    err = queue_.enqueueWriteBuffer(log_bo_, 
+                                   CL_FALSE, 
+                                   0, 
+                                   BUFFER_SIZE * sizeof(Instance), 
+                                   proposals_[buffer_index].data(), 
+                                   nullptr, &transfer_event_[0]);
+    err = queue_.enqueueTask(execute_krnl_, 
+                             &transfer_event_, 
+                             &execution_event_[0]);
+    err = queue_.enqueueReadBuffer(result_bo_, 
+                                   CL_FALSE, 
+                                   0, 
+                                   BUFFER_SIZE * sizeof(Instance), 
+                                   proposals_[buffer_index].data(), 
+                                   &execution_event_, &read_event);
+    if (err != CL_SUCCESS) {
+      std::cout << "false execution\n";
+    }
+    read_event.wait();
     last_applied_index += BUFFER_SIZE;
   }
   if (is_persistent_) {
-    auto size = pwrite(store_fd_, result_bo_map_, 
-        sizeof(result_bo_map_), store_offset_);
-    store_offset_ += size;
+    // auto size = pwrite(store_fd_, result_bo_map_, 
+    //     sizeof(result_bo_map_), store_offset_);
+    // store_offset_ += size;
   }
   
   auto offset = last_executed_ % BUFFER_SIZE;
   if (offset == BUFFER_SIZE - 1) {
+    *append_counts_[buffer_index] = 0;
+    *commit_counts_[buffer_index] = 0;
     bitmap_[buffer_index] = 0;
   }
   ++last_executed_;
-  auto kv_result = std::to_string(result_bo_map_[offset].command_.value_);
-  return {result_bo_map_[offset].client_id_, kv_result};
+  auto kv_result = std::to_string(
+      proposals_[buffer_index][offset].command_.value_);
+  return {proposals_[buffer_index][offset].client_id_, kv_result};
 }
 
 void XrtLog::EarlyApply() {
+  cl_int err;
+  cl::Event read_event;
   while (true) {
     {
       std::unique_lock<std::mutex> lock(mu_);
       while (running_ && *append_counts_[current_buffer_index] != BUFFER_SIZE) {
         cv_appliable_.wait(lock);
       }
-      if (!running_)
-        break;
-      *append_counts_[current_buffer_index] = 0;
     }
-    auto run = execute_krnl_(log_bo_, result_bo_, BUFFER_SIZE);
-    run.wait();
+    if (!running_)
+      break;
+    err = queue_.enqueueWriteBuffer(log_bo_, 
+                                   CL_FALSE, 
+                                   0, 
+                                   BUFFER_SIZE * sizeof(Instance), 
+                                   proposals_[current_buffer_index].data(), 
+                                   nullptr, &transfer_event_[0]);
+    err = queue_.enqueueTask(execute_krnl_, 
+                             &transfer_event_, 
+                             &execution_event_[0]);
+    err = queue_.enqueueReadBuffer(result_bo_, 
+                                   CL_FALSE, 
+                                   0, 
+                                   BUFFER_SIZE * sizeof(Instance), 
+                                   proposals_[current_buffer_index].data(), 
+                                   &execution_event_, &read_event);
+    if (err != CL_SUCCESS) {
+      std::cout << "false execution\n";
+    }
+    read_event.wait();
     {
       std::unique_lock<std::mutex> lock(mu_);
-      result_bo_.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
       last_applied_index += BUFFER_SIZE;
+      current_buffer_index = (current_buffer_index + 1 ) % BUFFER_COUNT;
     }
   }
 }

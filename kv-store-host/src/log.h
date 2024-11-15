@@ -11,6 +11,8 @@
 #include "experimental/xrt_device.h"
 #include "experimental/xrt_kernel.h"
 
+#include "xcl2.hpp"
+
 class Log {
  public:
   virtual ~Log() = default;
@@ -25,7 +27,15 @@ class Log {
   virtual std::tuple<int64_t, std::string> Execute() = 0;
 };
 
-Log* CreateLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store);
-Log* CreateLog(int id, std::unique_ptr<kvstore::KVStore> kv_store, std::string store);
+Log* CreateLog(int id, 
+               int device_id,
+               cl::Context context, 
+               cl::Program program, 
+               cl::CommandQueue& queue, 
+               std::string store);
+Log* CreateLog(int id, 
+               int device_id,
+               std::unique_ptr<kvstore::KVStore> kv_store,
+               std::string store);
 
 #endif

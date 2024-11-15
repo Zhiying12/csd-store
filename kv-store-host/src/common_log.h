@@ -24,6 +24,7 @@ bool IsInProgress(multipaxos::RPC_Instance const& instance);
 class CommonLog : public Log {
  public:
   explicit CommonLog(int id, 
+                     int device_id,
                      std::unique_ptr<kvstore::KVStore> kv_store, 
                      std::string store);
   CommonLog(CommonLog const& log) = delete;

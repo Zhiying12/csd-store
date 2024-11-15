@@ -19,21 +19,29 @@ Replicant::Replicant(boost::asio::io_context* io_context, json const& config)
       io_context_(io_context),
       acceptor_(boost::asio::make_strand(*io_context_)),
       client_manager_(id_, config["peers"].size(), &multi_paxos_),
-      partition_size_(config["partition_size"]) {
+      device_count_(config["device_count"]),
+      partition_size_(config["partition_size"]),
+      context_(device_count_),
+      queue_(device_count_) {
   if (config["log"] == "xrt") {
+    auto devices = xcl::get_xil_devices();
     std::string binaryFile = config["binary_file"];
-    for (auto i = 0; i < partition_size_; i++) {
-      std::string dev_id = "0";
-      if (i % 2 == 0)
-        device_ = xrt::device(dev_id);
-      else
-        device_ = xrt::device("1");
-      auto uuid = device_.load_xclbin(binaryFile);
-      logs_.emplace_back(CreateLog(i, device_, uuid, config["store"]));
+    auto fileBuf = xcl::read_binary_file(binaryFile);
+    cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
+    cl_int err;
+    int partition_per_device = partition_size_ / device_count_;
+    for (auto i = 0; i < device_count_; i++) {
+      auto device = devices[i];
+      context_[i] = cl::Context(device, nullptr, nullptr, nullptr, &err);
+      queue_[i] = cl::CommandQueue(context_[i], device, CL_QUEUE_PROFILING_ENABLE | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err);
+      cl::Program program(context_[i], {device}, bins, nullptr, &err);
+      for (auto j = 0; j < partition_per_device; j++) {
+        logs_.emplace_back(CreateLog(j, i, context_[i], program, queue_[i], config["store"]));
+      }
     }
   } else {
     for (auto i = 0; i < partition_size_; i++) {
-      logs_.emplace_back(CreateLog(i, kvstore::CreateStore(config), config["store"]));
+      logs_.emplace_back(CreateLog(i, i%2, kvstore::CreateStore(config), config["store"]));
     }
   }
 }

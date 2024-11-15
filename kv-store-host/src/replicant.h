@@ -41,8 +41,10 @@ class Replicant : public std::enable_shared_from_this<Replicant> {
   boost::asio::ip::tcp::acceptor acceptor_;
   ClientManager client_manager_;
   std::vector<std::thread> executor_threads_;
+  int device_count_;
   int partition_size_;
-  xrt::device device_;
+  std::vector<cl::Context> context_;
+  std::vector<cl::CommandQueue> queue_;
 };
 
 #endif

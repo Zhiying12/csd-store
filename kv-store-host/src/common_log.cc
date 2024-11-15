@@ -13,15 +13,18 @@ bool IsInProgress(multipaxos::RPC_Instance const& instance) {
 }
 
 CommonLog::CommonLog(int id, 
+                     int device_id,
                      std::unique_ptr<kvstore::KVStore> kv_store, 
                      std::string store)
     : kv_store_(std::move(kv_store)) {
   if (store == "file") {
     is_persistent_ = true;
-    std::string file_name = "log";
-    file_name += std::to_string(id);
+    std::string path = "/export/home/SmartSSD-disk/";
+    if (id % 2 == 1)
+      path = "/export/home/SmartSSD-disk2/";
+    std::string file_name = path + "log" + std::to_string(id);
     log_fd_ = fopen(file_name.c_str(), "w+");
-    file_name = "store" + std::to_string(id);
+    file_name = path + "store" + std::to_string(id);
     store_fd_ = fopen(file_name.c_str(), "w+");
   }
 }

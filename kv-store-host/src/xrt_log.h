@@ -19,7 +19,6 @@
 
 #include "log.h"
 #include "protobuf.h"
-// #include "protobuf.h"
 
 const int BUFFER_COUNT = 64;
 const int BUFFER_SIZE = 64;
@@ -27,10 +26,14 @@ const int STRUCT_FIELDS = 3;
 const int VALUE_NUMS = BUFFER_SIZE * STRUCT_FIELDS;
 const int KEY_VALUE_SIZE = 8192 * 2;
 
-
 class XrtLog : public Log {
  public:
-  explicit XrtLog(int id, xrt::device& device, xrt::uuid& uuid, std::string store);
+  explicit XrtLog(int id,
+                  int device_id,
+                  cl::Context context,
+                  cl::Program program,
+                  cl::CommandQueue& queue,
+                  std::string store);
   XrtLog(XrtLog const& log) = delete;
   XrtLog& operator=(XrtLog const& log) = delete;
   XrtLog(XrtLog&& log) = delete;
@@ -94,8 +97,8 @@ class XrtLog : public Log {
 
  private:
   bool running_ = true;
-  xrt::bo log_bo_;
-  xrt::bo store_bo_;
+  cl::Buffer log_bo_;
+  // xrt::bo store_bo_;
   int64_t last_index_ = 0;
   int64_t last_executed_ = 0;
   int64_t global_last_executed_ = 0;
@@ -113,13 +116,12 @@ class XrtLog : public Log {
   std::condition_variable cv_appliable_;
   std::thread apply_thread_;
   
-  xrt::kernel append_krnl_;
-  xrt::kernel execute_krnl_;
-  // xrt::bo current_instance_bo_;
-  // Instance* current_instance_bo_map_;
-  xrt::bo result_bo_;
-  Instance* log_bo_map_;
-  Instance* result_bo_map_;
+  // xrt::kernel append_krnl_;
+  cl::Kernel execute_krnl_;
+  cl::CommandQueue& queue_;
+  cl::Buffer result_bo_;
+  std::vector<cl::Event> transfer_event_;
+  std::vector<cl::Event> execution_event_;
 
   bool is_persistent_ = false;
   int log_fd_;
