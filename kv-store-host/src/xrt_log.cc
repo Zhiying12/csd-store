@@ -19,20 +19,24 @@ XrtLog::XrtLog(int id,
   cl_int err;
   execute_krnl_ = cl::Kernel(program, "kv_store_find", &err);
 
-  log_bo_ = cl::Buffer(context, CL_MEM_COPY_HOST_PTR | CL_MEM_WRITE_ONLY, 
+  log_bo_ = cl::Buffer(context, CL_MEM_READ_ONLY, 
       BUFFER_SIZE * sizeof(Instance), nullptr, &err);
-  result_bo_ = cl::Buffer(context, CL_MEM_COPY_HOST_PTR | CL_MEM_READ_ONLY, 
+  result_bo_ = cl::Buffer(context, CL_MEM_WRITE_ONLY, 
       BUFFER_SIZE * sizeof(Instance), nullptr, &err);
 
   err = execute_krnl_.setArg(0, log_bo_);
   err = execute_krnl_.setArg(1, result_bo_);
+  err = execute_krnl_.setArg(2, BUFFER_SIZE);
 
-  // Instance inst;
+  Instance inst;
   for (int i = 0; i < BUFFER_COUNT; i++) {
     // log_bo_map_[i] = inst;
     // result_bo_map_[i] = inst;
     append_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
     commit_counts_[i] = std::make_unique<std::atomic<int32_t>>(0);
+    for (int j = 0; j < BUFFER_SIZE; j++) {
+      proposals_[i][j] = inst;
+    }
   }
   apply_thread_ = std::thread(&XrtLog::EarlyApply, this);
 
@@ -181,7 +185,7 @@ void XrtLog::EarlyApply() {
     {
       std::unique_lock<std::mutex> lock(mu_);
       last_applied_index += BUFFER_SIZE;
-      current_buffer_index = (current_buffer_index + 1 ) % BUFFER_COUNT;
+      current_buffer_index = (current_buffer_index + 1) % BUFFER_COUNT;
     }
   }
 }
